@@ -190,6 +190,15 @@ export default function NudgePage() {
           ))}
         </div>
       </div>
+
+      {/* 👆 Nudge PNG Below the Section 👆 */}
+      <div className="flex justify-center mt-6">
+        <img 
+          src="/nudge.png" 
+          alt="Nudge Illustration" 
+          className="w-72 md:w-96 object-contain"
+        />
+      </div>
     </div>
   );
 }
