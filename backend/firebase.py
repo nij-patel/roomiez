@@ -1,10 +1,19 @@
 import firebase_admin
 from firebase_admin import credentials, auth
+import os
+from dotenv import load_dotenv
+import json
 
-# Load Firebase Admin SDK credentials
-cred = credentials.Certificate("firebaseAdminConfig.json")
+# Load environment variables from .env file
+load_dotenv()
+
+# Get Firebase secret from environment variable
+firebase_secret = os.getenv("FIREBASE_ADMIN_SDK")
+firebase_config = json.loads(firebase_secret)
+
+# Initialize Firebase with credentials
+cred = credentials.Certificate(firebase_config)
 firebase_admin.initialize_app(cred)
-
 
 """ 
 every time someone logs in via Firebase Auth, it creates a new user in the database, and creates
