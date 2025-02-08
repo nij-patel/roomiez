@@ -11,7 +11,7 @@ load_dotenv()
 firebase_secret = os.getenv("FIREBASE_ADMIN_SDK")
 firebase_config = json.loads(firebase_secret)
 
-# Initialize Firebase with credentials
+# Initialize Firebase n with credentials
 cred = credentials.Certificate(firebase_config)
 firebase_admin.initialize_app(cred)
 

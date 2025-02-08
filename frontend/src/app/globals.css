@@ -1,21 +1,39 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+
+/* Apply Poppins globally */
+* {
+  font-family: "Poppins", sans-serif;
+  box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+html,
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: #FFECAE;
+  /* Sets the correct background */
+  color: #333;
+  /* Ensures readability */
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* Centers content */
+  justify-content: center;
+  min-height: 100vh;
+}
+
+/* Remove global styling that might override Tailwind */
+button,
+input {
+  all: unset;
+  /* Prevents default browser styles */
+}
+
+/* Ensure buttons still get default Tailwind styling */
+button {
+  cursor: pointer;
 }
