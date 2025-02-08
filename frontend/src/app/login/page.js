@@ -28,7 +28,7 @@ export default function Login() {
       });
 
       if (response.ok) {
-        router.push("/dashboard");
+        router.push("/landing");
       } else {
         setError("Authentication failed");
       }

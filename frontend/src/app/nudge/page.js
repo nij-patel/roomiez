@@ -1,52 +1,27 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { auth } from "@/utils/firebaseConfig";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { auth } from "@/utils/firebaseConfig";
 import { onAuthStateChanged } from "firebase/auth";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faHome, faPiggyBank, faHandPointRight,
-  faSprayCanSparkles, faBasketShopping, faCalendarDays
+import { 
+  faHome, faPiggyBank, faHandPointRight, 
+  faSprayCanSparkles, faBasketShopping, 
+  faCalendarDays, faHandPointRight as faPoke, 
+  faUserCircle 
 } from "@fortawesome/free-solid-svg-icons";
 
-export default function Dashboard() {
-  const [user, setUser] = useState(null);
-  const [house, setHouse] = useState(null);
-  const [loading, setLoading] = useState(true);
+export default function NudgePage() {
   const router = useRouter();
+  const [user, setUser] = useState(null);
+  const [houseMembers, setHouseMembers] = useState([]);
 
-  /** 🔹 Fetch User's House via FastAPI */
-  const fetchUserHouse = async (authUser) => {
-    try {
-      const token = await authUser.getIdToken();
-
-      const response = await fetch("http://localhost:8000/house/my-house", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-        setHouse(data);
-      } else {
-        console.error("Error fetching house:", data.detail);
-      }
-    } catch (error) {
-      console.error("Error fetching house:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  /** 🔹 Listen for User Login & Fetch House Data */
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
       if (authUser) {
         setUser(authUser);
-        await fetchUserHouse(authUser);
+        await fetchHouseMembers(authUser);
       } else {
         router.push("/login");
       }
@@ -55,22 +30,52 @@ export default function Dashboard() {
     return () => unsubscribe();
   }, [router]);
 
-  if (loading) {
-    return <div className="flex items-center justify-center min-h-screen text-xl">Loading...</div>;
-  }
+  /** 🔹 Fetch House Members */
+  const fetchHouseMembers = async (authUser) => {
+    try {
+      const token = await authUser.getIdToken();
+      const response = await fetch("http://localhost:8000/house/my-house", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        setHouseMembers(data.member_details || []);
+      } else {
+        console.error("Error fetching members:", data.detail);
+      }
+    } catch (error) {
+      console.error("Fetch Members Error:", error);
+    }
+  };
+
+  /** 🔹 Nudge a Roommate */
+  const handleNudge = async (roommateEmail) => {
+    try {
+      const response = await fetch("http://localhost:8000/nudge/send", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ recipient_email: roommateEmail }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        alert(`Nudge sent anonymously to ${roommateEmail}`);
+      } else {
+        console.error("Error sending nudge:", data.detail);
+      }
+    } catch (error) {
+      console.error("Nudge Error:", error);
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-[#FFECAE] flex flex-col">
+    <div className="min-h-screen w-screen bg-[#FFECAE] flex flex-col">
       {/* Navigation Bar */}
-      <nav className="bg-[#F17141] text-[#FFECAE] py-4 px-6 flex justify-between items-center">
-      <h1 className="text-2xl font-bold">{house ? `${house.house_name}` : "Roomiez Dashboard"}</h1>
-      {house?.join_code && (
-      <h2 className="text-sm font-semibold text-gray-700 mt-1">
-        Join Code: {house.join_code}
-      </h2>
-      )}
-
-
+      <nav className="bg-[#F17141] w-screen text-[#FFECAE] py-4 px-6 flex justify-between items-center">
+      <h1 className="text-2xl font-bold">Roomiez Nudge</h1>
         {/* Navigation Buttons */}
         <div className="flex justify-center items-center gap-10 p-6">
           {/* Home Button */}
@@ -157,49 +162,34 @@ export default function Dashboard() {
         </button>
       </nav>
 
-{/* Main Content Section */}
-<div className="w-screen min-h-screen bg-[#FFECAE] flex flex-col items-center p-6">
-  
-  {house ? (
-    <div className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-      {house.member_details?.map((roommate, index) => (
-        <div key={index} className="bg-white p-6 rounded-lg shadow-md text-center">
+      {/* Nudge Roommates Section */}
+      <div className="w-full flex flex-col items-center p-6">
+        <h1 className="text-4xl font-bold text-[#F17141] py-6">Nudge a Roommate</h1>
 
-          {/* Person Image for Each Roommate */}
-          <div className="flex justify-center mb-4">
-            <img src="/person.png" alt="Person Icon" className="w-24 h-24 md:w-40 md:h-40" />
-          </div>
-
-          <h2 className="text-xl font-semibold">{roommate.firstName || "Unknown"}</h2>
-          <p className="text-gray-600">Balance: ${roommate.balance ?? 0}</p>
-
-          {/* Chores List */}
-          {roommate.chores && roommate.chores.length > 0 ? (
-            <ul className="w-full mt-2 bg-yellow-200 p-4 rounded-lg shadow-inner border border-yellow-500 text-gray-800">
-              {roommate.chores.map((chore, idx) => (
-                <li key={idx} className="py-1 flex justify-between">
-                  <span>{chore.chore_name}</span>
-                  <span className={`text-sm px-2 py-1 rounded-md ${
-                    chore.status === "Completed" ? "bg-green-500 text-white" : "bg-red-500 text-white"
-                  }`}>
-                    {chore.status}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <div className="w-full h-24 bg-gray-100 p-4 mt-2 rounded-lg shadow-inner border border-gray-300 flex items-center justify-center">
-              <span className="text-gray-500">No chores assigned</span>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          {houseMembers.map((roommate, index) => (
+            <div
+              key={index}
+              className="bg-white p-6 rounded-lg shadow-md flex flex-col items-center hover:shadow-xl transition-all cursor-pointer"
+              onClick={() => handleNudge(roommate.email)}
+            >
+              <div className="relative group">
+                <FontAwesomeIcon
+                  icon={faUserCircle}
+                  size="4x"
+                  className="text-gray-400 group-hover:text-[#F17141] transition-all"
+                />
+                <FontAwesomeIcon
+                  icon={faPoke}
+                  size="2x"
+                  className="absolute inset-0 m-auto opacity-0 group-hover:opacity-100 transition-opacity text-[#F17141]"
+                />
+              </div>
+              <p className="text-lg font-semibold mt-4">{roommate.firstName || "Unknown"}</p>
             </div>
-          )}
+          ))}
         </div>
-      ))}
-    </div>
-  ) : (
-    <p className="text-lg text-gray-600">You are not currently in a house. Join or create one.</p>
-  )}
-</div>
-
+      </div>
     </div>
   );
 }

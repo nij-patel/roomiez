@@ -12,6 +12,8 @@ import { faHouseCircleCheck } from "@fortawesome/free-solid-svg-icons"; // Impor
 export default function Signup() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [name, setName] = useState("");
+    const [balance, setBalance] = useState("");
     const [error, setError] = useState("");
     const router = useRouter();
 
@@ -23,11 +25,13 @@ export default function Signup() {
 
             // Store user details in Firestore
             await setDoc(doc(db, "users", user.uid), {
+                firstName: name,
                 email: user.email,
                 createdAt: new Date().toISOString(),
+                balance: 0
             });
 
-            router.push("/dashboard"); // Redirect to dashboard
+            router.push("/landing"); // Redirect to dashboard
         } catch (error) {
             setError(error.message);
         }
@@ -69,8 +73,19 @@ export default function Signup() {
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.4, duration: 0.6 }}
                     onSubmit={handleSignup}
-                    className="space-y-6"
+                    className="space-y-6" 
                 >
+                    <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">First Name</label>
+            <input
+              type="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="first name"
+              required
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-[#F17141]"
+            />
+          </div>
                     {/* Email Input */}
                     <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-1">Email Address</label>
@@ -78,7 +93,7 @@ export default function Signup() {
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            placeholder="Enter your email"
+                            placeholder="email"
                             required
                             className="w-full px-4 py-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-[#F17141]"
                         />
@@ -91,7 +106,7 @@ export default function Signup() {
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            placeholder="Enter your password"
+                            placeholder="password"
                             required
                             className="w-full px-4 py-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-[#F17141]"
                         />

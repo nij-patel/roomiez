@@ -1,76 +1,41 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { auth } from "@/utils/firebaseConfig";
+import { useState } from "react"; 
 import { useRouter } from "next/navigation";
-import { onAuthStateChanged } from "firebase/auth";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faHome, faPiggyBank, faHandPointRight,
-  faSprayCanSparkles, faBasketShopping, faCalendarDays
-} from "@fortawesome/free-solid-svg-icons";
+import { faHome, faPiggyBank, faHandPointRight, faSprayCanSparkles, faBasketShopping, faCalendarDays, faTrash, faBroom } from "@fortawesome/free-solid-svg-icons";
 
-export default function Dashboard() {
-  const [user, setUser] = useState(null);
-  const [house, setHouse] = useState(null);
-  const [loading, setLoading] = useState(true);
+export default function GroceryListPage() {
   const router = useRouter();
 
-  /** 🔹 Fetch User's House via FastAPI */
-  const fetchUserHouse = async (authUser) => {
-    try {
-      const token = await authUser.getIdToken();
+  // State: Grocery items list
+  const [groceries, setGroceries] = useState([]);
 
-      const response = await fetch("http://localhost:8000/house/my-house", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
+  const [newItem, setNewItem] = useState("");
 
-      const data = await response.json();
-      if (response.ok) {
-        setHouse(data);
-      } else {
-        console.error("Error fetching house:", data.detail);
-      }
-    } catch (error) {
-      console.error("Error fetching house:", error);
-    } finally {
-      setLoading(false);
-    }
+  // Function to add an item to the grocery list
+  const addItem = () => {
+    if (!newItem.trim()) return;
+
+    setGroceries([...groceries, newItem]);
+    setNewItem("");
   };
 
-  /** 🔹 Listen for User Login & Fetch House Data */
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
-      if (authUser) {
-        setUser(authUser);
-        await fetchUserHouse(authUser);
-      } else {
-        router.push("/login");
-      }
-    });
+  // Function to remove an item from the grocery list
+  const deleteItem = (index) => {
+    setGroceries(groceries.filter((_, i) => i !== index));
+  };
 
-    return () => unsubscribe();
-  }, [router]);
-
-  if (loading) {
-    return <div className="flex items-center justify-center min-h-screen text-xl">Loading...</div>;
-  }
+  // Function to clear the entire grocery list
+  const clearList = () => {
+    setGroceries([]);
+  };
 
   return (
-    <div className="min-h-screen bg-[#FFECAE] flex flex-col">
-      {/* Navigation Bar */}
-      <nav className="bg-[#F17141] text-[#FFECAE] py-4 px-6 flex justify-between items-center">
-      <h1 className="text-2xl font-bold">{house ? `${house.house_name}` : "Roomiez Dashboard"}</h1>
-      {house?.join_code && (
-      <h2 className="text-sm font-semibold text-gray-700 mt-1">
-        Join Code: {house.join_code}
-      </h2>
-      )}
-
-
+    <div className="min-h-screen w-screen bg-[#FFECAE] flex flex-col">
+      {/* Navigation Bar (Original Code) */}
+      <nav className="bg-[#F17141] w-screen text-[#FFECAE] py-4 px-6 flex justify-between items-center">
+      <h1 className="text-2xl font-bold">Roomiez Groceriez</h1>
         {/* Navigation Buttons */}
         <div className="flex justify-center items-center gap-10 p-6">
           {/* Home Button */}
@@ -157,49 +122,74 @@ export default function Dashboard() {
         </button>
       </nav>
 
-{/* Main Content Section */}
-<div className="w-screen min-h-screen bg-[#FFECAE] flex flex-col items-center p-6">
-  
-  {house ? (
-    <div className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-      {house.member_details?.map((roommate, index) => (
-        <div key={index} className="bg-white p-6 rounded-lg shadow-md text-center">
+      {/* Grocery List Section */}
+      <div className="w-full flex flex-col items-center p-6">
+        {/* Full-Width Heading */}
+        
 
-          {/* Person Image for Each Roommate */}
-          <div className="flex justify-center mb-4">
-            <img src="/person.png" alt="Person Icon" className="w-24 h-24 md:w-40 md:h-40" />
+        {/* Add Grocery Item Form */}
+        <div className="w-full max-w-4xl bg-white shadow-md rounded-lg p-6 mt-6">
+          <h2 className="text-2xl font-bold text-[#F17141] mb-4 text-center">Add Items</h2>
+
+          <div className="flex flex-col sm:flex-row gap-4 mb-4">
+            <input
+              type="text"
+              placeholder="Enter grocery item"
+              value={newItem}
+              onChange={(e) => setNewItem(e.target.value)}
+              className="flex-1 p-2 border border-gray-300 rounded-md"
+            />
+            <button
+              onClick={addItem}
+              className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
+            >
+              Add Item
+            </button>
           </div>
+        </div>
 
-          <h2 className="text-xl font-semibold">{roommate.firstName || "Unknown"}</h2>
-          <p className="text-gray-600">Balance: ${roommate.balance ?? 0}</p>
+        {/* Wooden Shelf Styled Grocery List */}
+        <div className="w-full max-w-4xl bg-[#8B5A2B] text-white shadow-md rounded-lg p-6 mt-6">
+          <h2 className="text-2xl font-bold text-[#FFECAE] mb-4 text-center">Grocery Shelf</h2>
 
-          {/* Chores List */}
-          {roommate.chores && roommate.chores.length > 0 ? (
-            <ul className="w-full mt-2 bg-yellow-200 p-4 rounded-lg shadow-inner border border-yellow-500 text-gray-800">
-              {roommate.chores.map((chore, idx) => (
-                <li key={idx} className="py-1 flex justify-between">
-                  <span>{chore.chore_name}</span>
-                  <span className={`text-sm px-2 py-1 rounded-md ${
-                    chore.status === "Completed" ? "bg-green-500 text-white" : "bg-red-500 text-white"
-                  }`}>
-                    {chore.status}
-                  </span>
-                </li>
-              ))}
-            </ul>
+          {groceries.length > 0 ? (
+            <>
+              <ul className="divide-y divide-gray-400">
+                {groceries.map((item, index) => (
+                  <li key={index} className="py-4 flex justify-between items-center bg-[#A67B5B] px-4 rounded-md shadow-md mb-2">
+                    <span className="text-white text-lg font-semibold">{item}</span>
+                    <button
+                      onClick={() => deleteItem(index)}
+                      className="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 flex items-center gap-2"
+                    >
+                      <FontAwesomeIcon icon={faTrash} /> Delete
+                    </button>
+                  </li>
+                ))}
+              </ul>
+
+              {/* Clear List Button */}
+              <button
+                onClick={clearList}
+                className="mt-4 px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 flex items-center gap-2"
+              >
+                <FontAwesomeIcon icon={faBroom} /> Clear List
+              </button>
+            </>
           ) : (
-            <div className="w-full h-24 bg-gray-100 p-4 mt-2 rounded-lg shadow-inner border border-gray-300 flex items-center justify-center">
-              <span className="text-gray-500">No chores assigned</span>
-            </div>
+            <p className="text-center text-[#FFECAE]">Your grocery shelf is empty.</p>
           )}
         </div>
-      ))}
-    </div>
-  ) : (
-    <p className="text-lg text-gray-600">You are not currently in a house. Join or create one.</p>
-  )}
-</div>
 
+        {/* 🍎 Fruit PNG Below the Shelf 🍎 */}
+        <div className="flex justify-center mt-6">
+          <img 
+            src="/fruit.png" 
+            alt="Fruit Illustration" 
+            className="w-40 md:w-64 object-contain"
+          />
+        </div>
+      </div>
     </div>
   );
 }

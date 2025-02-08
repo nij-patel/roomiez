@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap");
+@import url("https://fonts.cdnfonts.com/css/public-pixel");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -6,7 +6,7 @@
 
 /* Apply Poppins globally */
 * {
-  font-family: "Poppins", sans-serif;
+  font-family: "Public Pixel", sans-serif;
   box-sizing: border-box;
 }
 
@@ -36,4 +36,13 @@ input {
 /* Ensure buttons still get default Tailwind styling */
 button {
   cursor: pointer;
+}
+
+.no-box-outline {
+  -webkit-mask-image: url('/house.png'); /* Uses the image transparency as a shape */
+  mask-image: url('/house.png');
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
 }
