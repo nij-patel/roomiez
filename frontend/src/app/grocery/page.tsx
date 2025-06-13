@@ -45,12 +45,18 @@ export default function GroceryListPage() {
   /** Fetch all groceries for the house */
   const fetchGroceries = async (authUser: User) => {
     try {
+      console.log("🔍 Starting fetchGroceries for user:", authUser.email);
       const token = await authUser.getIdToken();
-      const response = await fetch("http://localhost:8000/groceries/my-house", {
+      console.log("🔑 Got Firebase token, length:", token?.length);
+      
+      const response = await fetch("http://localhost:8000/grocery/my-house", {
         headers: { Authorization: `Bearer ${token}` }
       });
 
+      console.log("📡 Response status:", response.status, response.statusText);
       const data = await response.json();
+      console.log("📦 Response data:", data);
+      
       if (response.ok) {
         setGroceries(data.groceries || []);
       } else {
@@ -58,7 +64,7 @@ export default function GroceryListPage() {
         setError(data.message || "Failed to fetch groceries");
       }
     } catch (error) {
-      console.error("Error fetching groceries:", error);
+      console.error("❌ Error fetching groceries:", error);
       setError("Failed to fetch groceries");
     }
   };
@@ -72,7 +78,7 @@ export default function GroceryListPage() {
 
     try {
       const token = await user.getIdToken();
-      const response = await fetch("http://localhost:8000/groceries/add", {
+      const response = await fetch("http://localhost:8000/grocery/add", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -106,7 +112,7 @@ export default function GroceryListPage() {
 
     try {
       const token = await user.getIdToken();
-      const response = await fetch(`http://localhost:8000/groceries/${groceryId}`, {
+      const response = await fetch(`http://localhost:8000/grocery/${groceryId}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -130,7 +136,7 @@ export default function GroceryListPage() {
 
     try {
       const token = await user.getIdToken();
-      const response = await fetch("http://localhost:8000/groceries/all-groceries", {
+      const response = await fetch("http://localhost:8000/grocery/all-groceries", {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -254,7 +260,16 @@ export default function GroceryListPage() {
                       <div>
                         <span className="text-white text-lg font-semibold">{item.item_name}</span>
                         <p className="text-[#FFECAE] text-sm mt-1">
-                          Added by {item.added_by} • {new Date(item.added_at).toLocaleDateString()}
+                          Added by {item.added_by} • {
+                            (() => {
+                              try {
+                                const date = new Date(item.added_at);
+                                return !isNaN(date.getTime()) ? date.toLocaleDateString() : 'Recently added';
+                              } catch {
+                                return 'Recently added';
+                              }
+                            })()
+                          }
                         </p>
                       </div>
                       <button

@@ -51,10 +51,15 @@ router.post(
             return;
             }
 
+            // Get user's first name from Firestore user document
+            const currentUserDoc = await db.collection("users").doc(user.uid).get();
+            const currentUserData = currentUserDoc.data();
+            const userFirstName = currentUserData?.firstName || user.email?.split('@')[0] || 'Unknown User';
+
             const groceryData: Omit<GroceryItem, "grocery_id"> = {
                 item_name: item,
                 house_id: houseId,
-                added_by: user.firstName,
+                added_by: userFirstName,
                 completed: false,
                 added_at: new Date()
             }
@@ -164,10 +169,18 @@ router.get(
                 .get();
             
             const groceries: GroceryItem[] = groceryData.docs
-                .map((doc) => ({
-                  grocery_id: doc.id,
-                  ...(doc.data() as Omit<GroceryItem, "grocery_id">),
-                }))
+                .map((doc) => {
+                  const data = doc.data() as any; // Use any to handle Firestore Timestamp conversion
+                  return {
+                    grocery_id: doc.id,
+                    item_name: data.item_name,
+                    house_id: data.house_id,
+                    added_by: data.added_by,
+                    completed: data.completed,
+                    // Convert Firestore Timestamp to JavaScript Date
+                    added_at: data.added_at instanceof Date ? data.added_at : data.added_at.toDate()
+                  } as GroceryItem;
+                })
                 .sort((a, b) => new Date(b.added_at).getTime() - new Date(a.added_at).getTime()); // Sort by newest first
               
             res.json({

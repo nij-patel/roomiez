@@ -122,10 +122,11 @@ router.post(
         return;
       }
 
-      // Get user's house_id
+      // Get user's house_id and first name
       const userDoc = await db.collection("users").doc(user.uid).get();
       const userData = userDoc.data();
       const houseId = userData?.house_id;
+      const userFirstName = userData?.firstName || user.email?.split('@')[0] || 'Unknown User';
       
       if (!houseId) {
         res.status(404).json({
@@ -174,7 +175,7 @@ router.post(
         date,
         person_email: user.email!,
         person_id: user.uid,
-        person_firstname: user.firstName,
+        person_firstname: userFirstName,
         location,
         created_at: new Date(),
       };
