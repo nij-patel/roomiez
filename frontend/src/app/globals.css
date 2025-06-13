@@ -46,3 +46,58 @@ button {
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
 }
+
+/* Custom animation for the orange text - continuous hover */
+@keyframes gentle-float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes fade-in-float {
+  0% {
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0px);
+  }
+}
+
+.animate-bounce-in {
+  animation: fade-in-float 1s ease-out forwards, gentle-float 3s ease-in-out infinite;
+  animation-delay: 0.5s, 1.5s;
+  opacity: 0;
+}
+
+/* Typing animation styles */
+.typing-container {
+  position: relative;
+  display: inline-block;
+}
+
+.typing-text {
+  color: #F17141;
+  font-weight: bold;
+  position: relative;
+}
+
+.typing-cursor {
+  display: inline-block;
+  background-color: #F17141;
+  width: 3px;
+  animation: blink 1.2s infinite;
+}
+
+@keyframes blink {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0;
+  }
+}
