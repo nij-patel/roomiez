@@ -60,7 +60,6 @@ def send_nudge(nudge_data: NudgeRequest):
     try:
         with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
             server.starttls()
-            print(SMTP_EMAIL + " " + SMTP_PASSWORD)
             server.login(SMTP_EMAIL, SMTP_PASSWORD)
             message = f"From: {sender_email}\nTo: {nudge_data.recipient_email}\nSubject: {subject}\n\n{body}"
             message = message.encode("utf-8")
