@@ -24,8 +24,8 @@ import expenseRoutes from './routes/expenses';
 import groceryRoutes from './routes/groceries';
 import calendarRoutes from './routes/calendar';
 
-// Load environment variables
-dotenv.config();
+// Load environment variables from root directory
+dotenv.config({ path: '../.env' });
 
 /**
  * Express App Configuration

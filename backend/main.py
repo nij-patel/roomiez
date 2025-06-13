@@ -9,7 +9,8 @@ import smtplib
 import random
 
 app = FastAPI()
-dotenv_path = os.path.join(os.path.dirname(__file__), ".env")
+# Load environment variables from root directory
+dotenv_path = os.path.join(os.path.dirname(__file__), "..", ".env")
 load_dotenv(dotenv_path)
 
 SMTP_SERVER = "smtp.gmail.com"
