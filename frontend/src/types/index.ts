@@ -37,13 +37,14 @@ export interface HouseMember {
 
 // Chore related types
 export interface Chore {
-  id?: string;
+  chore_id?: string;
   house_id: string;
   user_email: string;
   chore_name: string;
+  username?: string;
   status?: 'Pending' | 'Completed';
-  created_at?: Date;
-  due_date?: Date;
+  assigned_at?: Date;
+  completed_at?: Date;
 }
 
 // Expense related types

@@ -181,7 +181,7 @@ export default function ChoreManagementPage() {
                 <div className="flex justify-between items-start mb-2">
                   <p className="text-lg font-semibold text-gray-800">{chore.chore_name}</p>
                   <button
-                    onClick={() => chore.id && deleteChore(chore.id)}
+                    onClick={() => chore.chore_id && deleteChore(chore.chore_id)}
                     className="text-red-500 hover:text-red-700"
                   >
                     <FontAwesomeIcon icon={faTrash} />
