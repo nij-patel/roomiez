@@ -146,7 +146,7 @@ router.delete(
             if (!grocery_id) {
                 res.status(400).json({
                     error: "Bad Request",
-                    message: "grocery_ud is requried"
+                    message: "grocery_id is required"
                 });
                 return;
             }
@@ -165,13 +165,13 @@ router.delete(
 
             // verify that the user is a member of the house
             const userDoc = await db.collection("users").doc(user.uid).get();
-            const userData = userDoc.data()
+            const userData = userDoc.data();
 
             if (groceryData.house_id !== userData?.house_id){
                 res.status(403).json({
                     error: "Forbidden", 
                     message: "You can only delete groceries in your house"
-                })
+                });
                 return;
             }
 
