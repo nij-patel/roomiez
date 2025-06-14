@@ -22,51 +22,15 @@ const initializeFirebase = (): void => {
   console.log('🔥 Initializing Firebase Admin SDK...');
   console.log('📊 Environment check:');
   console.log('   NODE_ENV:', process.env.NODE_ENV);
-  console.log('   FIREBASE_PROJECT_ID exists:', !!process.env.FIREBASE_PROJECT_ID);
-  console.log('   FIREBASE_CLIENT_EMAIL exists:', !!process.env.FIREBASE_CLIENT_EMAIL);
-  console.log('   FIREBASE_PRIVATE_KEY exists:', !!process.env.FIREBASE_PRIVATE_KEY);
   console.log('   FIREBASE_ADMIN_SDK exists:', !!process.env.FIREBASE_ADMIN_SDK);
   
-  // Try individual environment variables first (better for Railway)
-  const projectId = process.env.FIREBASE_PROJECT_ID;
-  const privateKey = process.env.FIREBASE_PRIVATE_KEY;
-  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-  
-  if (projectId && privateKey && clientEmail) {
-    try {
-      console.log('✅ Using individual Firebase environment variables');
-      // Use individual environment variables
-      const firebaseConfig = {
-        type: "service_account",
-        project_id: projectId,
-        private_key: privateKey.replace(/\\n/g, '\n'), // Handle escaped newlines
-        client_email: clientEmail,
-      };
-      
-      // Initialize Firebase only if it hasn't been initialized yet
-      if (!admin.apps.length) {
-        admin.initializeApp({
-          credential: admin.credential.cert(firebaseConfig as admin.ServiceAccount),
-        });
-        console.log('✅ Firebase Admin SDK initialized successfully (individual vars)');
-      }
-      return;
-    } catch (error) {
-      console.error('❌ Failed to initialize with individual vars:', error);
-      // Fall through to JSON method
-    }
-  }
-  
-  // Fallback to JSON string method
   const firebaseSecret = process.env.FIREBASE_ADMIN_SDK;
   
   if (!firebaseSecret) {
     console.error('❌ No Firebase configuration found!');
-    console.error('💡 Available options:');
-    console.error('   1. Set individual variables: FIREBASE_PROJECT_ID, FIREBASE_PRIVATE_KEY, FIREBASE_CLIENT_EMAIL');
-    console.error('   2. Set JSON string: FIREBASE_ADMIN_SDK');
-    console.error('🚂 For Railway: Set these in your Railway project dashboard');
-    throw new Error('Firebase configuration not found. Set either FIREBASE_ADMIN_SDK (JSON) or individual variables (FIREBASE_PROJECT_ID, FIREBASE_PRIVATE_KEY, FIREBASE_CLIENT_EMAIL)');
+    console.error('💡 Set FIREBASE_ADMIN_SDK environment variable with your service account JSON');
+    console.error('🚂 For Railway: Set this in your Railway project dashboard');
+    throw new Error('Firebase configuration not found. Set FIREBASE_ADMIN_SDK environment variable');
   }
 
   try {
@@ -79,15 +43,13 @@ const initializeFirebase = (): void => {
       admin.initializeApp({
         credential: admin.credential.cert(firebaseConfig),
       });
-      console.log('✅ Firebase Admin SDK initialized successfully (JSON)');
+      console.log('✅ Firebase Admin SDK initialized successfully');
     }
   } catch (error) {
     if (error instanceof SyntaxError) {
       console.error('❌ Invalid JSON format for FIREBASE_ADMIN_SDK');
       console.error('🔍 JSON parsing error:', error.message);
       console.error('📝 First 100 chars of FIREBASE_ADMIN_SDK:', firebaseSecret.substring(0, 100));
-      console.error('💡 Try using individual environment variables instead:');
-      console.error('   FIREBASE_PROJECT_ID, FIREBASE_PRIVATE_KEY, FIREBASE_CLIENT_EMAIL');
       throw new Error('Invalid JSON format for FIREBASE_ADMIN_SDK');
     }
     throw new Error(`Failed to initialize Firebase: ${error}`);
