@@ -1,8 +1,11 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import helmet from 'helmet';
+import compression from 'compression';
 import { authenticateUser, AuthenticatedRequest } from './middleware/auth';
 import { db } from './config/firebase';
+import { logSystem, logAPI, logAuth, logBusiness } from './utils/logger';
 import { 
   HouseCreateRequest, 
   HouseJoinRequest, 
@@ -14,6 +17,13 @@ import {
   User,
   Chore
 } from './types';
+import { 
+  HouseCreateSchema, 
+  HouseJoinSchema, 
+  NudgeSchema, 
+  validateRequest 
+} from './utils/validation';
+import { globalErrorHandler, notFoundHandler } from './middleware/errorHandler';
 import { v4 as uuidv4 } from 'uuid';
 import nodemailer from 'nodemailer';
 
@@ -37,12 +47,33 @@ const PORT = process.env.PORT || 8000;
 /**
  * Middleware Configuration
  */
-// Parse JSON requests
-app.use(express.json());
+// Security middleware
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https:"],
+    },
+  },
+  crossOriginEmbedderPolicy: false, // Disable for Firebase compatibility
+}));
+
+// Compression middleware for better performance
+app.use(compression());
+
+// Parse JSON requests with size limit
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Enable CORS for frontend requests
+const allowedOrigins = process.env.NODE_ENV === 'production' 
+  ? [process.env.FRONTEND_URL || 'https://your-domain.com']
+  : ['http://localhost:3000'];
+
 app.use(cors({
-  origin: ['http://localhost:3000'], // Frontend URL
+  origin: allowedOrigins,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -82,6 +113,26 @@ const emailTransporter = nodemailer.createTransport({
  */
 
 /**
+ * Request logging middleware
+ */
+app.use((req: Request, res: Response, next) => {
+  const start = Date.now();
+  
+  // Log the request
+  logAPI.request(req.method, req.path, (req as any).user?.email);
+  
+  // Override res.json to log response
+  const originalJson = res.json;
+  res.json = function(body) {
+    const duration = Date.now() - start;
+    logAPI.response(req.method, req.path, res.statusCode, duration);
+    return originalJson.call(this, body);
+  };
+  
+  next();
+});
+
+/**
  * Health check endpoint
  * GET /
  */
@@ -98,17 +149,10 @@ app.get('/', (req: Request, res: Response) => {
  * POST /nudge/send
  * Sends an anonymous nudge email to a roommate
  */
-app.post('/nudge/send', async (req: Request, res: Response): Promise<void> => {
+app.post('/nudge/send', validateRequest(NudgeSchema), async (req: Request, res: Response): Promise<void> => {
   try {
     const { recipient_email }: NudgeRequest = req.body;
-    
-    if (!recipient_email) {
-      res.status(400).json({
-        error: 'Bad Request',
-        message: 'recipient_email is required'
-      });
-      return;
-    }
+    // Validation is now handled by middleware, so we can trust the data
 
     // Select random anonymous sender
     const senderEmail = ANONYMOUS_SENDERS[Math.floor(Math.random() * ANONYMOUS_SENDERS.length)];
@@ -124,7 +168,7 @@ app.post('/nudge/send', async (req: Request, res: Response): Promise<void> => {
       text: body,
     });
 
-    console.log(`📧 Nudge sent to ${recipient_email}`);
+    logBusiness.nudgeSent(recipient_email);
     
     res.json({ 
       message: 'Nudge sent successfully',
@@ -132,7 +176,7 @@ app.post('/nudge/send', async (req: Request, res: Response): Promise<void> => {
     });
     
   } catch (error) {
-    console.error('❌ Error sending nudge:', error);
+    logAPI.error('POST', '/nudge/send', error instanceof Error ? error.message : String(error));
     res.status(500).json({
       error: 'Internal Server Error',
       message: 'Failed to send nudge email'
@@ -177,7 +221,7 @@ app.get('/user/info/:email', authenticateUser, async (req: AuthenticatedRequest,
     });
     
   } catch (error) {
-    console.error('❌ Error fetching user:', error);
+    logAPI.error('GET', `/user/info/${req.params.email}`, error instanceof Error ? error.message : String(error));
     res.status(500).json({
       error: 'Internal Server Error',
       message: 'Failed to fetch user information'
@@ -190,15 +234,20 @@ app.get('/user/info/:email', authenticateUser, async (req: AuthenticatedRequest,
  * POST /house/create
  * Creates a new house with unique ID and join code (authenticated)
  */
-app.post('/house/create', authenticateUser, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+app.post('/house/create', authenticateUser, validateRequest(HouseCreateSchema), async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const { house_name }: HouseCreateRequest = req.body;
     const user = req.user!; // We know user exists due to auth middleware
+    // Validation is now handled by middleware, so we can trust the data
+
+    // Check if user is already in a house
+    const userDoc = await db.collection('users').doc(user.uid).get();
+    const userData = userDoc.data();
     
-    if (!house_name || house_name.trim().length === 0) {
+    if (userData?.house_id) {
       res.status(400).json({
         error: 'Bad Request',
-        message: 'house_name is required and cannot be empty'
+        message: 'You are already in a house. Leave your current house before creating a new one.'
       });
       return;
     }
@@ -223,7 +272,7 @@ app.post('/house/create', authenticateUser, async (req: AuthenticatedRequest, re
     // Update user document with house_id
     await db.collection('users').doc(user.uid).set({ house_id: houseId }, { merge: true });
 
-    console.log(`🏠 House "${house_name}" created by ${user.email} with join code: ${joinCode}`);
+    logBusiness.houseCreated(house_name, user.email, joinCode);
     
     res.status(201).json({
       message: 'House created successfully!',
@@ -235,7 +284,7 @@ app.post('/house/create', authenticateUser, async (req: AuthenticatedRequest, re
     });
     
   } catch (error) {
-    console.error('❌ Error creating house:', error);
+    logAPI.error('POST', '/house/create', error instanceof Error ? error.message : String(error));
     res.status(500).json({
       error: 'Internal Server Error',
       message: 'Failed to create house'
@@ -248,18 +297,11 @@ app.post('/house/create', authenticateUser, async (req: AuthenticatedRequest, re
  * POST /house/join
  * Join an existing house using a join code (authenticated)
  */
-app.post('/house/join', authenticateUser, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+app.post('/house/join', authenticateUser, validateRequest(HouseJoinSchema), async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const { join_code }: HouseJoinRequest = req.body;
     const user = req.user!;
-    
-    if (!join_code || join_code.trim().length === 0) {
-      res.status(400).json({
-        error: 'Bad Request',
-        message: 'join_code is required'
-      });
-      return;
-    }
+    // Validation is now handled by middleware, so we can trust the data
 
     // Find house by join code
     const housesRef = db.collection('houses');
@@ -295,7 +337,7 @@ app.post('/house/join', authenticateUser, async (req: AuthenticatedRequest, res:
     // Update user document with house_id
     await db.collection('users').doc(user.uid).set({ house_id: houseDoc.id }, { merge: true });
 
-    console.log(`🚪 User ${user.email} joined house: ${houseData.house_name}`);
+    logBusiness.houseJoined(houseData.house_name, user.email);
     
     res.json({
       message: 'Successfully joined house!',
@@ -308,7 +350,7 @@ app.post('/house/join', authenticateUser, async (req: AuthenticatedRequest, res:
     });
     
   } catch (error) {
-    console.error('❌ Error joining house:', error);
+    logAPI.error('POST', '/house/join', error instanceof Error ? error.message : String(error));
     res.status(500).json({
       error: 'Internal Server Error',
       message: 'Failed to join house'
@@ -393,15 +435,13 @@ app.get('/house/my-house', authenticateUser, async (req: AuthenticatedRequest, r
       member_details: memberDetails
     };
 
-    console.log(responseData);
-    
     res.json({
       message: 'House details retrieved successfully',
       data: responseData
     });
     
   } catch (error) {
-    console.error('❌ Error fetching house details:', error);
+    logAPI.error('GET', '/house/my-house', error instanceof Error ? error.message : String(error));
     res.status(500).json({
       error: 'Internal Server Error',
       message: 'Failed to fetch house details'
@@ -417,11 +457,18 @@ app.use('/user', userRoutes);
 app.use('/expense', expenseRoutes);
 app.use('/grocery', groceryRoutes);
 app.use('/calendar', calendarRoutes);
+
+/**
+ * Error Handling Middleware
+ * These must be last!
+ */
+app.use(notFoundHandler);
+app.use(globalErrorHandler);
+
 /**
  * Start the Express server
  */
 app.listen(PORT, () => {
-  console.log(`🚀 Roomiez TypeScript Backend running on port ${PORT}`);
-  console.log(`📝 API documentation available at http://localhost:${PORT}`);
-  console.log(`🔧 Environment: ${process.env.NODE_ENV || 'development'}`);
+  const env = process.env.NODE_ENV || 'development';
+  logSystem.startup(Number(PORT), env);
 }); 

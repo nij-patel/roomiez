@@ -8,6 +8,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash, faPlusCircle, faHome, faPiggyBank, faHandPointRight, faSprayCanSparkles, faBasketShopping, faCalendarDays } from "@fortawesome/free-solid-svg-icons";
 import Navigation from "@/components/Navigation";
 import { Chore, HouseMember } from "@/types";
+import { buildApiUrl, devError } from "@/utils/config";
 
 export default function ChoreManagementPage() {
   const router = useRouter();
@@ -34,7 +35,7 @@ export default function ChoreManagementPage() {
   const fetchHouseData = async (authUser: User) => {
     try {
       const token = await authUser.getIdToken();
-      const response = await fetch("http://localhost:8000/house/my-house", {
+      const response = await fetch(buildApiUrl("/house/my-house"), {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -42,29 +43,28 @@ export default function ChoreManagementPage() {
       if (response.ok) {
         setHouseMembers(data.data.member_details || []);
       } else {
-        console.error("Error fetching house data:", data.message);
+        devError("Error fetching house data:", data.message);
       }
     } catch (error) {
-      console.error("Fetch House Data Error:", error);
+      devError("Fetch House Data Error:", error);
     }
   };
 
   const fetchChores = async (authUser: User) => {
     try {
       const token = await authUser.getIdToken();
-      const response = await fetch("http://localhost:8000/chores/my-house", {
+      const response = await fetch(buildApiUrl("/chores/my-house"), {
         headers: { Authorization: `Bearer ${token}` },
       });
 
       const data = await response.json();
       if (response.ok) {
-        console.log("Data:", data);
         setChores(data.chores || []);
       } else {
-        console.error("Error fetching chores:", data.data.message);
+        devError("Error fetching chores:", data.data.message);
       }
     } catch (error) {
-      console.error("Fetch Chores Error:", error);
+      devError("Fetch Chores Error:", error);
     }
   };
 
@@ -73,7 +73,7 @@ export default function ChoreManagementPage() {
 
     try {
       const token = await user.getIdToken();
-      const response = await fetch("http://localhost:8000/chores/add", {
+      const response = await fetch(buildApiUrl("/chores/add"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -88,10 +88,10 @@ export default function ChoreManagementPage() {
         setSelectedRoommate(null);
         await fetchChores(user);
       } else {
-        console.error("Error adding chore:", data.data.message);
+        devError("Error adding chore:", data.data.message);
       }
     } catch (error) {
-      console.error("Add Chore Error:", error);
+      devError("Add Chore Error:", error);
     }
   };
 
@@ -100,14 +100,14 @@ export default function ChoreManagementPage() {
 
     try {
       const token = await user.getIdToken();
-      await fetch(`http://localhost:8000/chores/${choreId}`, {
+      await fetch(buildApiUrl(`/chores/${choreId}`), {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
 
       await fetchChores(user);
     } catch (error) {
-      console.error("Delete Chore Error:", error);
+      devError("Delete Chore Error:", error);
     }
   };
 
@@ -116,7 +116,7 @@ export default function ChoreManagementPage() {
       await auth.signOut();
       router.push("/login");
     } catch (error) {
-      console.error("Logout error:", error);
+      devError("Logout error:", error);
     }
   };
 

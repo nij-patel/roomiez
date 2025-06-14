@@ -8,6 +8,7 @@ import Image from "next/image";
 import Navigation from "@/components/Navigation";
 import { auth } from "@/utils/firebaseConfig";
 import { onAuthStateChanged, User } from "firebase/auth";
+import { buildApiUrl, devLog, devError } from "@/utils/config";
 
 interface GroceryItem {
   grocery_id: string;
@@ -45,26 +46,26 @@ export default function GroceryListPage() {
   /** Fetch all groceries for the house */
   const fetchGroceries = async (authUser: User) => {
     try {
-      console.log("🔍 Starting fetchGroceries for user:", authUser.email);
+      devLog("🔍 Starting fetchGroceries for user:", authUser.email);
       const token = await authUser.getIdToken();
-      console.log("🔑 Got Firebase token, length:", token?.length);
+      devLog("🔑 Got Firebase token, length:", token?.length);
       
-      const response = await fetch("http://localhost:8000/grocery/my-house", {
+      const response = await fetch(buildApiUrl("/grocery/my-house"), {
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      console.log("📡 Response status:", response.status, response.statusText);
+      devLog("📡 Response status:", response.status, response.statusText);
       const data = await response.json();
-      console.log("📦 Response data:", data);
+      devLog("📦 Response data:", data);
       
       if (response.ok) {
         setGroceries(data.groceries || []);
       } else {
-        console.error("Error fetching groceries:", data.message);
+        devError("Error fetching groceries:", data.message);
         setError(data.message || "Failed to fetch groceries");
       }
     } catch (error) {
-      console.error("❌ Error fetching groceries:", error);
+      devError("❌ Error fetching groceries:", error);
       setError("Failed to fetch groceries");
     }
   };
@@ -78,7 +79,7 @@ export default function GroceryListPage() {
 
     try {
       const token = await user.getIdToken();
-      const response = await fetch("http://localhost:8000/grocery/add", {
+      const response = await fetch(buildApiUrl("/grocery/add"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -99,7 +100,7 @@ export default function GroceryListPage() {
         setError(data.message || "Failed to add item");
       }
     } catch (error) {
-      console.error("Error adding item:", error);
+      devError("Error adding item:", error);
       setError("Failed to add item");
     } finally {
       setIsAdding(false);
@@ -112,7 +113,7 @@ export default function GroceryListPage() {
 
     try {
       const token = await user.getIdToken();
-      const response = await fetch(`http://localhost:8000/grocery/${groceryId}`, {
+      const response = await fetch(buildApiUrl(`/grocery/${groceryId}`), {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -125,7 +126,7 @@ export default function GroceryListPage() {
         setError(data.message || "Failed to delete item");
       }
     } catch (error) {
-      console.error("Error deleting item:", error);
+      devError("Error deleting item:", error);
       setError("Failed to delete item");
     }
   };
@@ -136,20 +137,26 @@ export default function GroceryListPage() {
 
     try {
       const token = await user.getIdToken();
-      const response = await fetch("http://localhost:8000/grocery/all-groceries", {
+      devLog("🧹 Attempting to clear grocery list...");
+      
+      const response = await fetch(buildApiUrl("/grocery/all-groceries"), {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` }
       });
 
+      devLog("🔍 Clear list response status:", response.status);
       const data = await response.json();
+      devLog("🔍 Clear list response data:", data);
+      
       if (response.ok) {
         setMessage("Cleared entire grocery list!");
         await fetchGroceries(user); // Refresh the list
       } else {
-        setError(data.message || "Failed to clear list");
+        devError("❌ Clear list failed:", data);
+        setError(data.message || data.error || "Failed to clear list");
       }
     } catch (error) {
-      console.error("Error clearing list:", error);
+      devError("❌ Error clearing list:", error);
       setError("Failed to clear list");
     }
   };
@@ -159,7 +166,7 @@ export default function GroceryListPage() {
       await auth.signOut();
       router.push("/login");
     } catch (error) {
-      console.error("Logout error:", error);
+      devError("Logout error:", error);
     }
   };
 

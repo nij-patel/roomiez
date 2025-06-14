@@ -6,6 +6,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import PixelArtHouse from "../../components/PixelArtHouse";
+import { buildApiUrl, devError } from "@/utils/config";
 
 export default function Login() {
   const [email, setEmail] = useState<string>("");
@@ -25,7 +26,7 @@ export default function Login() {
       
       // Check if user is already in a house
       const token = await user.getIdToken();
-      const response = await fetch("http://localhost:8000/house/my-house", {
+      const response = await fetch(buildApiUrl("/house/my-house"), {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`
@@ -40,6 +41,7 @@ export default function Login() {
         router.push("/landing");
       }
     } catch (err: any) {
+      devError("Login error:", err);
       setError(err.message);
     } finally {
       setLoading(false);

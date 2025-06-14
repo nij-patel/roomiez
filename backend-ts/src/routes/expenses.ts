@@ -3,6 +3,8 @@ import { authenticateUser, AuthenticatedRequest } from "../middleware/auth";
 import { db } from "../config/firebase";
 import { Expense, CreateExpenseRequest, SettleExpenseRequest } from "../types";
 import { v4 as uuidv4 } from 'uuid';
+import { ExpenseCreateSchema, ExpenseSettleSchema, validateRequest } from '../utils/validation';
+import { logAPI, logBusiness, logDatabase } from '../utils/logger';
 
 const router = express.Router();
 
@@ -14,35 +16,12 @@ const router = express.Router();
 router.post(
   "/create",
   authenticateUser,
+  validateRequest(ExpenseCreateSchema),
   async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
       const user = req.user!;
       const { amount, description, split_between }: CreateExpenseRequest = req.body;
-
-      // Validation
-      if (!amount || amount <= 0) {
-        res.status(400).json({
-          error: "Bad Request",
-          message: "amount must be a positive number",
-        });
-        return;
-      }
-
-      if (!description || description.trim().length === 0) {
-        res.status(400).json({
-          error: "Bad Request",
-          message: "description is required",
-        });
-        return;
-      }
-
-      if (!split_between || split_between.length === 0) {
-        res.status(400).json({
-          error: "Bad Request",
-          message: "split_between must contain at least one user email",
-        });
-        return;
-      }
+      // Validation is now handled by middleware, so we can trust the data
 
       // Get user's house
       const userDoc = await db.collection("users").doc(user.uid).get();
@@ -87,24 +66,30 @@ router.post(
       // Update balances for all participants
       const batch = db.batch();
 
+      // First, update the payer's balance (they are owed money)
+      const payerDoc = await db.collection("users").doc(user.uid).get();
+      const payerData = payerDoc.data();
+      const payerCurrentBalance = payerData?.balance || 0;
+      
+      // Calculate how much the payer should be owed
+      let payerOwedAmount = 0;
+      if (split_between.includes(user.email!)) {
+        // Payer is included in split - they paid full amount but only owe their share
+        payerOwedAmount = amount - amountPerPerson;
+      } else {
+        // Payer is NOT in split - they paid full amount and owe nothing
+        payerOwedAmount = amount;
+      }
+      
+      // Update payer's balance
+      batch.update(payerDoc.ref, {
+        balance: payerCurrentBalance + payerOwedAmount,
+        last_updated: new Date()
+      });
+
+      // Then, update all participants who owe money
       for (const participantEmail of split_between) {
-        if (participantEmail === user.email) {
-          // Payer gets positive balance (others owe them)
-          const payerAmount = amount - amountPerPerson; // They paid full amount but only owe their share
-          
-          // Find payer's uid
-          const payerQuery = await db.collection("users").where("email", "==", participantEmail).limit(1).get();
-          if (!payerQuery.empty) {
-            const payerDoc = payerQuery.docs[0];
-            const payerData = payerDoc.data();
-            const currentBalance = payerData.balance || 0;
-            
-            batch.update(payerDoc.ref, {
-              balance: currentBalance + payerAmount,
-              last_updated: new Date()
-            });
-          }
-        } else {
+        if (participantEmail !== user.email) {
           // Other participants get negative balance (they owe money)
           const participantQuery = await db.collection("users").where("email", "==", participantEmail).limit(1).get();
           if (!participantQuery.empty) {
@@ -123,7 +108,7 @@ router.post(
       // Commit all balance updates
       await batch.commit();
 
-      console.log(`💰 Expense created: ${description} for $${amount} split ${split_between.length} ways`);
+      logBusiness.expenseCreated(description, amount, split_between.length);
 
       res.json({
         message: "Expense created successfully",
@@ -135,7 +120,7 @@ router.post(
       });
 
     } catch (error) {
-      console.error("❌ Error creating expense:", error);
+      logAPI.error('POST', '/expense/create', error instanceof Error ? error.message : String(error));
       res.status(500).json({
         error: "Internal Server Error",
         message: "Failed to create expense",
@@ -185,7 +170,12 @@ router.get(
 
       const expenses = expensesQuery.docs
         .map(doc => doc.data())
-        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+        .sort((a, b) => {
+          // Handle Firestore Timestamps properly - most recent first
+          const aTime = a.created_at?.toDate ? a.created_at.toDate().getTime() : new Date(a.created_at).getTime();
+          const bTime = b.created_at?.toDate ? b.created_at.toDate().getTime() : new Date(b.created_at).getTime();
+          return bTime - aTime;
+        });
 
       res.json({
         message: "Expenses retrieved successfully",
@@ -196,7 +186,7 @@ router.get(
       });
 
     } catch (error) {
-      console.error("❌ Error fetching expenses:", error);
+      logAPI.error('GET', '/expense/list', error instanceof Error ? error.message : String(error));
       res.status(500).json({
         error: "Internal Server Error",
         message: "Failed to fetch expenses",
@@ -250,9 +240,7 @@ router.get(
 
       const houseData = houseDoc.data();
       const memberEmails = houseData?.members || [];
-      console.log("---------------------------");
-      console.log("Getting balances for house members");
-      console.log(houseData);
+      logDatabase.query('houses', 'get_members', user.email);
 
       // Get balances for all house members
       const memberBalances = [];
@@ -279,10 +267,8 @@ router.get(
         }
       });
 
-      console.log("💰 House balances requested successfully")
-
     } catch (error) {
-      console.error("❌ Error fetching house balances:", error);
+      logAPI.error('GET', '/expense/balances', error instanceof Error ? error.message : String(error));
       res.status(500).json({
         error: "Internal Server Error",
         message: "Failed to fetch house balances",
@@ -299,27 +285,12 @@ router.get(
 router.post(
   "/settle",
   authenticateUser,
+  validateRequest(ExpenseSettleSchema),
   async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
       const user = req.user!;
       const { amount, to_email, description }: SettleExpenseRequest = req.body;
-
-      // Validation
-      if (!amount || amount <= 0) {
-        res.status(400).json({
-          error: "Bad Request",
-          message: "amount must be a positive number",
-        });
-        return;
-      }
-
-      if (!to_email) {
-        res.status(400).json({
-          error: "Bad Request",
-          message: "to_email is required",
-        });
-        return;
-      }
+      // Validation is now handled by middleware, so we can trust the data
 
       if (to_email === user.email) {
         res.status(400).json({
@@ -349,23 +320,23 @@ router.post(
       // Update balances
       const batch = db.batch();
 
-      // Payer loses money (negative balance change)
+      // Payer's balance increases (they owe less money)
       const payerCurrentBalance = payerData?.balance || 0;
       batch.update(payerDoc.ref, {
-        balance: payerCurrentBalance - amount,
+        balance: payerCurrentBalance + amount,
         last_updated: new Date()
       });
 
-      // Recipient gains money (positive balance change)
+      // Recipient's balance decreases (they are owed less money)
       const recipientCurrentBalance = recipientData.balance || 0;
       batch.update(recipientDoc.ref, {
-        balance: recipientCurrentBalance + amount,
+        balance: recipientCurrentBalance - amount,
         last_updated: new Date()
       });
 
       await batch.commit();
 
-      console.log(`💸 Settlement: ${user.email} paid $${amount} to ${to_email}`);
+      logBusiness.paymentSettled(user.email!, to_email, amount);
 
       res.json({
         message: "Payment settled successfully",
@@ -379,7 +350,7 @@ router.post(
       });
 
     } catch (error) {
-      console.error("❌ Error settling payment:", error);
+      logAPI.error('POST', '/expense/settle', error instanceof Error ? error.message : String(error));
       res.status(500).json({
         error: "Internal Server Error",
         message: "Failed to settle payment",

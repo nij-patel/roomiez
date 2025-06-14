@@ -7,6 +7,7 @@ import PixelArtNudge from "../../components/PixelArtNudge";
 import Navigation from "../../components/Navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserSecret, faUserCircle, faHandPointRight } from "@fortawesome/free-solid-svg-icons";
+import { buildApiUrl, devLog, devError } from "@/utils/config";
 
 interface User {
   id: string;
@@ -28,7 +29,7 @@ export default function NudgePage() {
       try {
         // Use the backend API to get house members
         const token = await user.getIdToken();
-        const response = await fetch("http://localhost:8000/house/my-house", {
+        const response = await fetch(buildApiUrl("/house/my-house"), {
           headers: { 
             Authorization: `Bearer ${token}` 
           },
@@ -39,7 +40,7 @@ export default function NudgePage() {
         }
 
         const data = await response.json();
-        console.log("House API response:", data);
+        devLog("House API response:", data);
         
         if (data.data && data.data.member_details) {
           // Filter out current user and map to our User interface
@@ -52,13 +53,13 @@ export default function NudgePage() {
               email: member.email
             }));
           
-          console.log("Found roommates:", roommates);
+          devLog("Found roommates:", roommates);
           setRoommates(roommates);
         } else {
-          console.log("No member details in response");
+          devLog("No member details in response");
         }
       } catch (error) {
-        console.error("Error fetching roommates:", error);
+        devError("Error fetching roommates:", error);
       }
     };
 
@@ -88,7 +89,7 @@ export default function NudgePage() {
         setFeedback({ type: 'error', message: errorData.error || 'Failed to send nudge' });
       }
     } catch (error) {
-      console.error("Error sending nudge:", error);
+      devError("Error sending nudge:", error);
       setFeedback({ type: 'error', message: 'Failed to send nudge' });
     } finally {
       setIsLoading(false);
@@ -99,7 +100,7 @@ export default function NudgePage() {
     try {
       await auth.signOut();
     } catch (error) {
-      console.error("Logout error:", error);
+      devError("Logout error:", error);
     }
   };
 

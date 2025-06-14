@@ -9,6 +9,7 @@ import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import Navigation from "@/components/Navigation";
 import { auth } from "@/utils/firebaseConfig";
 import { onAuthStateChanged, User } from "firebase/auth";
+import { buildApiUrl, devError } from "@/utils/config";
 
 // Type for calendar events (matching backend Reservation type)
 interface CalendarEvent {
@@ -68,7 +69,7 @@ export default function CalendarPage() {
     try {
       setLoading(true);
       const token = await authUser.getIdToken();
-      const response = await fetch("http://localhost:8000/calendar/my-house", {
+      const response = await fetch(buildApiUrl("/calendar/my-house"), {
         headers: { 
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json"
@@ -79,11 +80,11 @@ export default function CalendarPage() {
       if (response.ok) {
         setEvents(data.reservations || []);
       } else {
-        console.error("Error fetching reservations:", data.message);
+        devError("Error fetching reservations:", data.message);
         alert("Failed to load reservations: " + data.message);
       }
     } catch (error) {
-      console.error("Fetch reservations error:", error);
+      devError("Fetch reservations error:", error);
       alert("Failed to load reservations");
     } finally {
       setLoading(false);
@@ -97,7 +98,7 @@ export default function CalendarPage() {
     try {
       setLoading(true);
       const token = await user.getIdToken();
-      const response = await fetch("http://localhost:8000/calendar/create", {
+      const response = await fetch(buildApiUrl("/calendar/create"), {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -120,7 +121,7 @@ export default function CalendarPage() {
         alert("Failed to create reservation: " + data.message);
       }
     } catch (error) {
-      console.error("Create reservation error:", error);
+      devError("Create reservation error:", error);
       alert("Failed to create reservation");
     } finally {
       setLoading(false);
@@ -136,7 +137,7 @@ export default function CalendarPage() {
     try {
       setLoading(true);
       const token = await user.getIdToken();
-      const response = await fetch(`http://localhost:8000/calendar/${reservationId}`, {
+      const response = await fetch(buildApiUrl(`/calendar/${reservationId}`), {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -152,7 +153,7 @@ export default function CalendarPage() {
         alert("Failed to delete reservation: " + data.message);
       }
     } catch (error) {
-      console.error("Delete reservation error:", error);
+      devError("Delete reservation error:", error);
       alert("Failed to delete reservation");
     } finally {
       setLoading(false);
@@ -292,16 +293,16 @@ export default function CalendarPage() {
                     <button
                       onClick={handleSaveEvent}
                       disabled={loading}
-                      className="flex-1 py-3 bg-green-500 text-white rounded-md hover:bg-green-600 disabled:opacity-50"
+                      className="flex-1 py-3 bg-green-500 text-white rounded-md hover:bg-green-600 disabled:opacity-50 text-center"
                     >
-                      Save Reservation
+                      Save
                     </button>
                     <button
                       onClick={resetForm}
-                      className="flex-1 py-3 bg-gray-500 text-white rounded-md hover:bg-gray-600"
+                      className="flex-1 py-3 bg-gray-500 text-white rounded-md hover:bg-gray-600 text-center"
                     >
                       Cancel
-              </button>
+                    </button>
                   </div>
                 </div>
               </div>

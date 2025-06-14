@@ -1,25 +1,21 @@
 import express, { Response } from "express";
 import { authenticateUser, AuthenticatedRequest } from "../middleware/auth";
 import { db } from "../config/firebase";
-import { GroceryRequest, GroceryItem } from "../types"
+import { GroceryRequest, GroceryItem } from "../types";
+import { GroceryAddSchema, validateRequest } from '../utils/validation';
+import { logAPI, logBusiness, logDatabase } from '../utils/logger';
 
 const router = express.Router();
 
 router.post(
     "/add", 
-    authenticateUser, 
+    authenticateUser,
+    validateRequest(GroceryAddSchema),
     async(req: AuthenticatedRequest, res: Response): Promise <void> => {
         try {
             const user = req.user!;
-            const { item, user_email }: GroceryRequest = req.body
-
-            if (!item || !user_email) {
-                res.status(400).json({
-                    error: "Bad Request",
-                    message: "item and user_email are requrid"
-                });
-                return;
-            }
+            const { item, user_email }: GroceryRequest = req.body;
+            // Validation is now handled by middleware, so we can trust the data
 
             // get user's house_id
 
@@ -68,6 +64,8 @@ router.post(
             const groceryRef = await db.collection("groceries").add(groceryData);
 
 
+            logBusiness.groceryAdded(item, user.email!);
+
             res.status(201).json({
                 message: "Grocery added successfully",
                 data: {
@@ -76,10 +74,62 @@ router.post(
                 }
             });
         } catch (error) {
-            console.error("Error adding grocery:", error);
+            logAPI.error('POST', '/grocery/add', error instanceof Error ? error.message : String(error));
             res.status(500).json({
                 error: "Internal Server Error",
                 message: "Failed to add grocery"
+            });
+        }
+    }
+)
+
+// IMPORTANT: /all-groceries route must come BEFORE /:grocery_id route
+// to prevent Express from matching "all-groceries" as a grocery_id parameter
+router.delete(
+    "/all-groceries",
+    authenticateUser,
+    async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+        try {
+            const user = req.user!;
+            
+            const userDoc = await db.collection("users").doc(user.uid).get();
+            const userData = userDoc.data();
+
+            if (!userData?.house_id){
+                res.status(404).json({
+                    error: "Not Found",
+                    message: "User is not in a house"
+                });
+                return;
+            }
+
+            const groceries = await db.collection("groceries").where("house_id", "==", userData.house_id).get();
+
+            if (groceries.empty){
+                res.json({
+                    message: "Grocery list is already empty"
+                });
+                return;
+            }
+
+            const batch = db.batch();
+
+            groceries.docs.forEach((doc) => {
+                batch.delete(doc.ref);
+            });
+
+            await batch.commit();
+
+            logBusiness.groceryListCleared(userData.house_id, user.email!);
+
+            res.json({
+                message: "All groceries deleted successfully"
+            });
+        } catch (error) {
+            logAPI.error('DELETE', '/grocery/all-groceries', error instanceof Error ? error.message : String(error));
+            res.status(500).json({
+                error: "Internal Server Error",
+                message: "Failed to delete groceries"
             });
         }
     }
@@ -126,7 +176,7 @@ router.delete(
             }
 
             await db.collection("groceries").doc(grocery_id).delete();
-            console.log(`Grocery item ${groceryData.item_name} deleted by ${user.email}`);
+            logBusiness.groceryDeleted(groceryData.item_name, user.email!);
 
             res.json({
                 message: "Grocery item deleted successfully",
@@ -136,7 +186,7 @@ router.delete(
                 }
             });
         } catch (error) {
-            console.error("❌ Error deleting grocery:", error);
+            logAPI.error('DELETE', `/grocery/${req.params.grocery_id}`, error instanceof Error ? error.message : String(error));
             res.status(500).json({
                 error: "Internal Server Error",
                 message: "Failed to delete grocery item"
@@ -193,54 +243,6 @@ router.get(
             res.status(500).json({
                 error: "Internal Server Error",
                 message: "Failed to fetch chores "
-            });
-        }
-    }
-)
-
-router.delete(
-    "/all-groceries",
-    authenticateUser,
-    async (req: AuthenticatedRequest, res: Response): Promise<void> => {
-        try {
-            const user = req.user!;
-            const userDoc = await db.collection("users").doc(user.uid).get();
-            const userData = userDoc.data();
-
-            if (!userData?.house_id){
-                res.status(404).json({
-                    error: "Not Found",
-                    message: "User is not in a house"
-                });
-                return;
-            }
-
-            const groceries = await db.collection("groceries").where("house_id", "==", userData.house_id).get();
-
-            if (groceries.empty){
-                res.status(404).json({
-                    error: "Not Found",
-                    message: "No groceries found in your house"
-                });
-                return;
-            }
-
-            const batch = db.batch();
-
-            groceries.docs.forEach((doc) => {
-                batch.delete(doc.ref);
-            });
-
-            await batch.commit();
-
-            res.json({
-                message: "All groceries deleted successfully"
-            });
-        } catch (error) {
-            console.error("❌ Error deleting groceries:", error);
-            res.status(500).json({
-                error: "Internal  Server Error",
-                message: "Failed to delete groceries"
             });
         }
     }

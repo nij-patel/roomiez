@@ -7,6 +7,7 @@ import { onAuthStateChanged, User } from "firebase/auth";
 import { doc, getDoc, DocumentData } from "firebase/firestore";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import { buildApiUrl, devError } from "@/utils/config";
 
 export default function Dashboard() {
   const [user, setUser] = useState<User | null>(null);
@@ -27,7 +28,7 @@ export default function Dashboard() {
         if (userSnap.exists()) {
           setUserData(userSnap.data()); 
         } else {
-          console.error("User document not found in Firestore.");
+          devError("User document not found in Firestore.");
         }
       } else {
         router.push("/login");
@@ -47,7 +48,7 @@ export default function Dashboard() {
 
     try {
       const token = await user.getIdToken();
-      const response = await fetch("http://localhost:8000/house/create", {
+      const response = await fetch(buildApiUrl("/house/create"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -67,7 +68,7 @@ export default function Dashboard() {
         setMessage(`Error: ${data.message || data.detail}`);
       }
     } catch (error) {
-      console.error("Create House Error:", error);
+      devError("Create House Error:", error);
       setMessage("Error creating house. Please try again.");
     }
   };
@@ -83,7 +84,7 @@ export default function Dashboard() {
 
     try {
       const token = await user.getIdToken();
-      const response = await fetch("http://localhost:8000/house/join", {
+      const response = await fetch(buildApiUrl("/house/join"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -103,7 +104,7 @@ export default function Dashboard() {
         setMessage(`Error: ${data.message || data.detail}`);
       }
     } catch (error) {
-      console.error("Join House Error:", error);
+      devError("Join House Error:", error);
       setMessage("Error joining house. Please try again.");
     }
   };

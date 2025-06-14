@@ -7,6 +7,7 @@ import { onAuthStateChanged, User } from "firebase/auth";
 import Image from "next/image";
 import Navigation from "@/components/Navigation";
 import { House, AuthUser } from "@/types";
+import { buildApiUrl, devLog, devError } from "@/utils/config";
 
 export default function Dashboard() {
   const [user, setUser] = useState<User | null>(null);
@@ -19,7 +20,7 @@ export default function Dashboard() {
     try {
       const token = await authUser.getIdToken();
 
-      const response = await fetch("http://localhost:8000/house/my-house", {
+      const response = await fetch(buildApiUrl("/house/my-house"), {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`
@@ -29,12 +30,12 @@ export default function Dashboard() {
       const data = await response.json();
       if (response.ok) {
         setHouse(data.data);
-        console.log("House data:", data);
+        devLog("House data:", data);
       } else {
-        console.error("Error fetching house:", data.detail);
+        devError("Error fetching house:", data.detail);
       }
     } catch (error) {
-      console.error("Error fetching house:", error);
+      devError("Error fetching house:", error);
     } finally {
       setLoading(false);
     }
@@ -59,7 +60,7 @@ export default function Dashboard() {
       await auth.signOut();
       router.push("/login");
     } catch (error) {
-      console.error("Logout error:", error);
+      devError("Logout error:", error);
     }
   };
 

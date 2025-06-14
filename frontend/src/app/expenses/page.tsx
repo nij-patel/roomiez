@@ -9,6 +9,7 @@ import Navigation from "@/components/Navigation";
 import { Expense, CreateExpenseRequest, SettleExpenseRequest, HouseMember } from "@/types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faDollarSign, faMoneyBillTransfer, faReceipt } from "@fortawesome/free-solid-svg-icons";
+import { buildApiUrl, devLog, devError } from "@/utils/config";
 
 interface HouseBalance {
   uid: string;
@@ -68,7 +69,7 @@ export default function ExpensesPage() {
   const fetchExpenses = async (authUser: User) => {
     try {
       const token = await authUser.getIdToken();
-      const response = await fetch("http://localhost:8000/expense/list", {
+      const response = await fetch(buildApiUrl("/expense/list"), {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -76,10 +77,10 @@ export default function ExpensesPage() {
       if (response.ok) {
         setExpenses(data.data.expenses || []);
       } else {
-        console.error("Error fetching expenses:", data.message);
+        devError("Error fetching expenses:", data.message);
       }
     } catch (error) {
-      console.error("Error fetching expenses:", error);
+      devError("Error fetching expenses:", error);
     }
   };
 
@@ -87,13 +88,13 @@ export default function ExpensesPage() {
   const fetchHouseBalances = async (authUser: User) => {
     try {
       const token = await authUser.getIdToken();
-      const response = await fetch("http://localhost:8000/expense/balances", {
+      const response = await fetch(buildApiUrl("/expense/balances"), {
         headers: { Authorization: `Bearer ${token}` }
       });
 
       const data = await response.json();
       if (response.ok) {
-        console.log("Entire response", data);
+        devLog("Entire response", data);
         setHouseBalances(data.data.members || []);
         // Pre-populate split_between with all house member emails
         setNewExpense(prev => ({
@@ -101,10 +102,10 @@ export default function ExpensesPage() {
           split_between: data.data.members.map((member: HouseBalance) => member.email)
         }));
       } else {
-        console.error("Error fetching balances:", data.message);
+        devError("Error fetching balances:", data.message);
       }
     } catch (error) {
-      console.error("Error fetching balances:", error);
+      devError("Error fetching balances:", error);
     }
   };
 
@@ -115,7 +116,7 @@ export default function ExpensesPage() {
 
         try {
           const token = await user.getIdToken();
-      const response = await fetch("http://localhost:8000/expense/create", {
+      const response = await fetch(buildApiUrl("/expense/create"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -141,7 +142,7 @@ export default function ExpensesPage() {
         setMessageType("error");
           }
         } catch (error) {
-      console.error("Error creating expense:", error);
+      devError("Error creating expense:", error);
       setMessage("Error creating expense");
       setMessageType("error");
     }
@@ -154,7 +155,7 @@ export default function ExpensesPage() {
 
     try {
       const token = await user.getIdToken();
-      const response = await fetch("http://localhost:8000/expense/settle", {
+      const response = await fetch(buildApiUrl("/expense/settle"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -177,7 +178,7 @@ export default function ExpensesPage() {
         setMessageType("error");
       }
     } catch (error) {
-      console.error("Error settling payment:", error);
+      devError("Error settling payment:", error);
       setMessage("Error settling payment");
       setMessageType("error");
     }
@@ -188,7 +189,7 @@ export default function ExpensesPage() {
       await auth.signOut();
       router.push("/login");
     } catch (error) {
-      console.error("Logout error:", error);
+      devError("Logout error:", error);
     }
   };
 
@@ -504,7 +505,7 @@ export default function ExpensesPage() {
                     {houseBalances
                       .filter(member => member.email !== user?.email)
                       .map((member) => (
-                        <option key={member.uid} value={member.email}>
+                        <option key={member.email} value={member.email}>
                           {member.firstName} ({member.email})
                         </option>
                       ))}
