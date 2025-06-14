@@ -1,7 +1,7 @@
 {
   "name": "Roomiez",
   "short_name": "Roomiez",
-  "description": "Simplify your roommate experience",
+  "description": "Roomiez - simplify your roommate experience",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#FFECAE",

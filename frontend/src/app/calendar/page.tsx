@@ -233,73 +233,77 @@ export default function CalendarPage() {
       )}
 
       {/* Main Calendar Section */}
-      <div className="flex flex-grow">
-        <div className="flex flex-col w-2/3 p-6">
-          <h2 className="text-3xl font-semibold text-gray-800 mb-4">Roommate Calendar</h2>
+      <div className="flex flex-col lg:flex-row flex-grow">
+        <div className="flex flex-col w-full lg:w-2/3 p-4 sm:p-6">
+          <h2 className="text-2xl sm:text-3xl font-semibold text-gray-800 mb-4">Roommate Calendar</h2>
 
           {/* React Calendar Component */}
-          <div className="bg-white p-6 rounded-lg shadow-md w-full">
-            <Calendar onChange={handleDateChange} value={date} className="w-full" />
+          <div className="bg-white p-3 sm:p-6 rounded-lg shadow-md w-full">
+            <Calendar 
+              onChange={handleDateChange} 
+              value={date} 
+              className="w-full calendar-mobile" 
+            />
           </div>
 
-          <p className="mt-4 text-lg font-semibold">Selected Date: {date.toDateString()}</p>
+          <p className="mt-4 text-base sm:text-lg font-semibold">Selected Date: {date.toDateString()}</p>
 
           {/* Add Event Button */}
           <button
             onClick={() => setShowForm(true)}
             disabled={loading}
-            className="mt-4 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50"
+            className="mt-4 px-4 sm:px-6 py-2 sm:py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 text-sm sm:text-base"
           >
             Add Reservation
           </button>
 
           {/* Event Form Modal */}
           {showForm && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-              <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-                <h3 className="text-xl font-semibold mb-4">
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+              <div className="bg-white p-4 sm:p-6 rounded-lg shadow-lg w-full max-w-md mx-4">
+                <h3 className="text-lg sm:text-xl font-semibold mb-4">
                   Add New Reservation
                 </h3>
 
                 <div className="space-y-4">
-              <input
-                type="time"
+                  <input
+                    type="time"
                     placeholder="Start Time"
-                value={eventStartTime}
-                onChange={(e) => setEventStartTime(e.target.value)}
-                    className="w-full p-3 border border-gray-300 rounded-md"
-              />
+                    value={eventStartTime}
+                    onChange={(e) => setEventStartTime(e.target.value)}
+                    className="w-full p-2 sm:p-3 border border-gray-300 rounded-md text-sm sm:text-base"
+                  />
 
-              <input
-                type="time"
+                  <input
+                    type="time"
                     placeholder="End Time"
-                value={eventEndTime}
-                onChange={(e) => setEventEndTime(e.target.value)}
-                    className="w-full p-3 border border-gray-300 rounded-md"
-              />
+                    value={eventEndTime}
+                    onChange={(e) => setEventEndTime(e.target.value)}
+                    className="w-full p-2 sm:p-3 border border-gray-300 rounded-md text-sm sm:text-base"
+                  />
 
-              <select
-                value={reservedSpace}
-                onChange={(e) => setReservedSpace(e.target.value)}
-                    className="w-full p-3 border border-gray-300 rounded-md"
-              >
+                  <select
+                    value={reservedSpace}
+                    onChange={(e) => setReservedSpace(e.target.value)}
+                    className="w-full p-2 sm:p-3 border border-gray-300 rounded-md text-sm sm:text-base"
+                  >
                     <option value="">Select a location</option>
-                <option value="Living Room">Living Room</option>
-                <option value="Kitchen">Kitchen</option>
-                <option value="Shower">Shower</option>
-              </select>
+                    <option value="Living Room">Living Room</option>
+                    <option value="Kitchen">Kitchen</option>
+                    <option value="Shower">Shower</option>
+                  </select>
 
-                  <div className="flex gap-4">
+                  <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                     <button
                       onClick={handleSaveEvent}
                       disabled={loading}
-                      className="flex-1 py-3 bg-green-500 text-white rounded-md hover:bg-green-600 disabled:opacity-50 text-center"
+                      className="flex-1 py-2 sm:py-3 bg-green-500 text-white rounded-md hover:bg-green-600 disabled:opacity-50 text-center text-sm sm:text-base"
                     >
                       Save
                     </button>
                     <button
                       onClick={resetForm}
-                      className="flex-1 py-3 bg-gray-500 text-white rounded-md hover:bg-gray-600 text-center"
+                      className="flex-1 py-2 sm:py-3 bg-gray-500 text-white rounded-md hover:bg-gray-600 text-center text-sm sm:text-base"
                     >
                       Cancel
                     </button>
@@ -310,39 +314,39 @@ export default function CalendarPage() {
           )}
 
           {/* Events for Selected Date */}
-          <div className="mt-6 bg-white p-6 rounded-lg shadow-md">
-            <h3 className="text-xl font-semibold mb-4">
+          <div className="mt-6 bg-white p-4 sm:p-6 rounded-lg shadow-md">
+            <h3 className="text-lg sm:text-xl font-semibold mb-4">
               Reservations for {date.toDateString()}
             </h3>
 
             {selectedDateEvents.map((event) => (
               <div
                 key={event.reservation_id}
-                className={`p-4 rounded-md shadow-md mb-2 ${
+                className={`p-3 sm:p-4 rounded-md shadow-md mb-2 ${
                   spaceColors[event.location] || "bg-gray-200"
                 }`}
               >
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="font-semibold">{event.location} Reservation</p>
-                    <p className="text-sm text-gray-600">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
+                  <div className="flex-1">
+                    <p className="font-semibold text-sm sm:text-base">{event.location} Reservation</p>
+                    <p className="text-xs sm:text-sm text-gray-600">
                       {event.start_time} - {event.end_time}
                     </p>
-                    <p className="text-sm">
+                    <p className="text-xs sm:text-sm">
                       Reserved by: {event.person_firstname || event.person_email}
                     </p>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 self-start">
                     <button
                       onClick={() => handleEditEvent(event.reservation_id)}
-                      className="p-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+                      className="p-1.5 sm:p-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 text-sm"
                       disabled={loading}
                     >
                       <FontAwesomeIcon icon={faEdit} />
                     </button>
                     <button
                       onClick={() => deleteReservation(event.reservation_id)}
-                      className="p-2 bg-red-500 text-white rounded hover:bg-red-600"
+                      className="p-1.5 sm:p-2 bg-red-500 text-white rounded hover:bg-red-600 text-sm"
                       disabled={loading || event.person_id !== user?.uid}
                       title={event.person_id !== user?.uid ? "You can only delete your own reservations" : "Delete reservation"}
                     >
@@ -354,36 +358,36 @@ export default function CalendarPage() {
             ))}
 
             {selectedDateEvents.length === 0 && (
-              <p className="text-gray-500">No reservations for this date.</p>
+              <p className="text-gray-500 text-sm sm:text-base">No reservations for this date.</p>
             )}
           </div>
         </div>
 
         {/* Right Sidebar - Today's Events */}
-        <div className="w-1/3 bg-gray-100 p-6">
-          <h3 className="text-2xl font-semibold mb-4">Today&apos;s Schedule</h3>
+        <div className="w-full lg:w-1/3 bg-gray-100 p-4 sm:p-6 order-first lg:order-last">
+          <h3 className="text-xl sm:text-2xl font-semibold mb-4">Today&apos;s Schedule</h3>
 
           {todaysEvents.length > 0 ? (
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {todaysEvents.map((event) => (
                 <div
                   key={event.reservation_id}
-                  className={`p-4 rounded-md shadow-md ${
+                  className={`p-3 sm:p-4 rounded-md shadow-md ${
                     spaceColors[event.location] || "bg-gray-200"
                   }`}
                 >
-                  <p className="font-semibold">{event.location}</p>
-                  <p className="text-sm text-gray-600">
+                  <p className="font-semibold text-sm sm:text-base">{event.location}</p>
+                  <p className="text-xs sm:text-sm text-gray-600">
                     {event.start_time} - {event.end_time}
                   </p>
-                  <p className="text-sm">
+                  <p className="text-xs sm:text-sm">
                     {event.person_firstname || event.person_email}
                   </p>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-gray-500">No reservations scheduled for today.</p>
+            <p className="text-gray-500 text-sm sm:text-base">No reservations scheduled for today.</p>
           )}
         </div>
       </div>

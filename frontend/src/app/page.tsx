@@ -109,7 +109,7 @@ export default function LandingPage() {
               <span className="text-[#F17141] inline-block animate-bounce-in drop-shadow-lg"> Roommate Experience</span>
             </h2>
             <p className="text-lg sm:text-xl md:text-2xl text-gray-600 mb-6 sm:mb-8 leading-relaxed drop-shadow-md">
-              manage your house&apos;s{" "}
+              Manage your house&apos;s{" "}
               <span className="typing-container">
                 <span className="typing-text drop-shadow-md">{currentWord}</span>
                 <span className="typing-cursor">&nbsp;</span>
@@ -122,7 +122,7 @@ export default function LandingPage() {
               href="/login"
               className="inline-flex items-center space-x-2 sm:space-x-3 px-6 sm:px-8 py-3 sm:py-4 bg-[#F17141] text-white text-base sm:text-lg font-semibold rounded-xl hover:bg-[#E85D2B] transition-all duration-200 transform hover:scale-105 shadow-lg"
             >
-              <span>Start Your Journey</span>
+              <span>Sign Up (It&apos;s Free!)</span>
               <FontAwesomeIcon icon={faArrowRight} className="text-sm sm:text-base" />
             </Link>
           </div>
@@ -139,7 +139,7 @@ export default function LandingPage() {
       {/* Features Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-8 py-12 sm:py-16">
         <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-center text-gray-800 mb-8 sm:mb-12 lg:mb-16 drop-shadow-lg">
-          Everything You Need for Better Living
+          Everything You Need to Not Hate Your Roomies
         </h3>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
@@ -189,7 +189,7 @@ export default function LandingPage() {
             <span className="text-lg sm:text-xl font-bold text-[#F17141]">Roomiez</span>
           </div>
           <p className="text-sm sm:text-base text-gray-600">
-            Making roommates not hate each other, since 2025.
+            Helping roommates not hate each other since 2025
           </p>
         </div>
       </footer>

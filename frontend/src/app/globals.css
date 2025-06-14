@@ -82,8 +82,18 @@ button {
 
 .typing-text {
   color: #F17141;
-  font-weight: bold;
+  font-weight: 900;
   position: relative;
+  text-shadow: 
+    -2px -2px 0 #333,
+    2px -2px 0 #333,
+    -2px 2px 0 #333,
+    2px 2px 0 #333,
+    -2px 0 0 #333,
+    2px 0 0 #333,
+    0 -2px 0 #333,
+    0 2px 0 #333,
+    0 0 4px rgba(1, 1, 1, 1);
 }
 
 .typing-cursor {
@@ -99,5 +109,31 @@ button {
   }
   51%, 100% {
     opacity: 0;
+  }
+}
+
+/* Mobile-friendly calendar styles */
+@media (max-width: 640px) {
+  .calendar-mobile .react-calendar {
+    width: 100% !important;
+    font-size: 0.875rem !important;
+  }
+  
+  .calendar-mobile .react-calendar__tile {
+    padding: 0.5rem 0.25rem !important;
+    font-size: 0.75rem !important;
+  }
+  
+  .calendar-mobile .react-calendar__month-view__weekdays {
+    font-size: 0.75rem !important;
+  }
+  
+  .calendar-mobile .react-calendar__navigation button {
+    font-size: 0.875rem !important;
+    padding: 0.5rem !important;
+  }
+  
+  .calendar-mobile .react-calendar__navigation__label {
+    font-size: 0.875rem !important;
   }
 }
