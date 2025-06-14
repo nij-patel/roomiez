@@ -82,32 +82,33 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-[#FFECAE]">
       {/* Header */}
-      <header className="w-full py-6 px-8">
+      <header className="w-full py-4 sm:py-6 px-4 sm:px-8">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <FontAwesomeIcon icon={faHome} className="text-3xl text-[#F17141]" />
-            <h1 className="text-3xl font-bold text-[#F17141] drop-shadow-lg">Roomiez</h1>
+          <div className="flex items-center space-x-2 sm:space-x-3">
+            <FontAwesomeIcon icon={faHome} className="text-2xl sm:text-3xl text-[#F17141]" />
+            <h1 className="text-2xl sm:text-3xl font-bold text-[#F17141] drop-shadow-lg">Roomiez</h1>
           </div>
           <Link
             href="/login"
-            className="px-6 py-3 bg-[#F17141] text-white font-semibold rounded-lg hover:bg-[#E85D2B] transition-colors duration-200 flex items-center space-x-2"
+            className="px-4 py-2 sm:px-6 sm:py-3 bg-[#F17141] text-white font-semibold rounded-lg hover:bg-[#E85D2B] transition-colors duration-200 flex items-center space-x-1 sm:space-x-2 text-sm sm:text-base"
           >
-            <span>Get Started</span>
-            <FontAwesomeIcon icon={faArrowRight} />
+            <span className="hidden sm:inline">Get Started</span>
+            <span className="sm:hidden">Start</span>
+            <FontAwesomeIcon icon={faArrowRight} className="text-sm" />
           </Link>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="max-w-7xl mx-auto px-8 py-16">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+      <section className="max-w-7xl mx-auto px-4 sm:px-8 py-8 sm:py-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           {/* Left side - Text content */}
-          <div className="text-center lg:text-left">
-            <h2 className="text-5xl md:text-6xl font-bold text-gray-800 mb-6 drop-shadow-lg">
+          <div className="text-center lg:text-left order-2 lg:order-1">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-800 mb-4 sm:mb-6 drop-shadow-lg leading-tight">
               Simplifying the 
               <span className="text-[#F17141] inline-block animate-bounce-in drop-shadow-lg"> Roommate Experience</span>
             </h2>
-            <p className="text-xl md:text-2xl text-gray-600 mb-8 leading-relaxed drop-shadow-md">
+            <p className="text-lg sm:text-xl md:text-2xl text-gray-600 mb-6 sm:mb-8 leading-relaxed drop-shadow-md">
               manage your house&apos;s{" "}
               <span className="typing-container">
                 <span className="typing-text drop-shadow-md">{currentWord}</span>
@@ -119,16 +120,16 @@ export default function LandingPage() {
             
             <Link
               href="/login"
-              className="inline-flex items-center space-x-3 px-8 py-4 bg-[#F17141] text-white text-lg font-semibold rounded-xl hover:bg-[#E85D2B] transition-all duration-200 transform hover:scale-105 shadow-lg"
+              className="inline-flex items-center space-x-2 sm:space-x-3 px-6 sm:px-8 py-3 sm:py-4 bg-[#F17141] text-white text-base sm:text-lg font-semibold rounded-xl hover:bg-[#E85D2B] transition-all duration-200 transform hover:scale-105 shadow-lg"
             >
               <span>Start Your Journey</span>
-              <FontAwesomeIcon icon={faArrowRight} />
+              <FontAwesomeIcon icon={faArrowRight} className="text-sm sm:text-base" />
             </Link>
           </div>
 
           {/* Right side - Animated house */}
-          <div className="flex justify-center lg:justify-end">
-            <div className="transform hover:scale-105 transition-transform duration-300">
+          <div className="flex justify-center lg:justify-end order-1 lg:order-2">
+            <div className="transform hover:scale-105 transition-transform duration-300 scale-75 sm:scale-90 lg:scale-100">
               <PixelArtHouse />
             </div>
           </div>
@@ -136,24 +137,24 @@ export default function LandingPage() {
       </section>
 
       {/* Features Section */}
-      <section className="max-w-7xl mx-auto px-8 py-16">
-        <h3 className="text-4xl font-bold text-center text-gray-800 mb-16 drop-shadow-lg">
+      <section className="max-w-7xl mx-auto px-4 sm:px-8 py-12 sm:py-16">
+        <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-center text-gray-800 mb-8 sm:mb-12 lg:mb-16 drop-shadow-lg">
           Everything You Need for Better Living
         </h3>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
           {features.map((feature, index) => (
             <div
               key={index}
-              className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border-l-4 border-[#F17141]"
+              className="bg-white rounded-2xl p-6 sm:p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border-l-4 border-[#F17141]"
             >
-              <div className="flex items-center justify-center w-16 h-16 bg-[#F17141] rounded-full mb-6 mx-auto">
-                <FontAwesomeIcon icon={feature.icon} className="text-2xl text-white" />
+              <div className="flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-[#F17141] rounded-full mb-4 sm:mb-6 mx-auto">
+                <FontAwesomeIcon icon={feature.icon} className="text-lg sm:text-2xl text-white" />
               </div>
-              <h4 className="text-xl font-bold text-gray-800 mb-4 text-center drop-shadow-md">
+              <h4 className="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4 text-center drop-shadow-md">
                 {feature.title}
               </h4>
-              <p className="text-gray-600 text-center leading-relaxed">
+              <p className="text-sm sm:text-base text-gray-600 text-center leading-relaxed">
                 {feature.description}
               </p>
             </div>
@@ -162,32 +163,32 @@ export default function LandingPage() {
       </section>
 
       {/* Call to Action Section */}
-      <section className="max-w-4xl mx-auto px-8 py-16 text-center">
-        <div className="bg-white rounded-3xl p-12 shadow-xl border-2 border-[#F17141]">
-          <h3 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6 drop-shadow-lg">
+      <section className="max-w-4xl mx-auto px-4 sm:px-8 py-12 sm:py-16 text-center">
+        <div className="bg-white rounded-3xl p-6 sm:p-8 lg:p-12 shadow-xl border-2 border-[#F17141]">
+          <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-4 sm:mb-6 drop-shadow-lg">
             Ready to Transform Your Living Experience?
           </h3>
-          <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-gray-600 mb-6 sm:mb-8 max-w-2xl mx-auto">
             Sign up for free today!
           </p>
           <Link
             href="/login"
-            className="inline-flex items-center space-x-3 px-10 py-5 bg-[#F17141] text-white text-xl font-bold rounded-xl hover:bg-[#E85D2B] transition-all duration-200 transform hover:scale-105 shadow-lg"
+            className="inline-flex items-center space-x-2 sm:space-x-3 px-6 sm:px-8 lg:px-10 py-3 sm:py-4 lg:py-5 bg-[#F17141] text-white text-lg sm:text-xl font-bold rounded-xl hover:bg-[#E85D2B] transition-all duration-200 transform hover:scale-105 shadow-lg"
           >
             <span>Get Started Today</span>
-            <FontAwesomeIcon icon={faArrowRight} />
+            <FontAwesomeIcon icon={faArrowRight} className="text-base sm:text-lg" />
           </Link>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="w-full py-8 px-8 mt-16">
+      <footer className="w-full py-6 sm:py-8 px-4 sm:px-8 mt-12 sm:mt-16">
         <div className="max-w-7xl mx-auto text-center">
-          <div className="flex items-center justify-center space-x-3 mb-4">
-            <FontAwesomeIcon icon={faHome} className="text-2xl text-[#F17141]" />
-            <span className="text-xl font-bold text-[#F17141]">Roomiez</span>
+          <div className="flex items-center justify-center space-x-2 sm:space-x-3 mb-3 sm:mb-4">
+            <FontAwesomeIcon icon={faHome} className="text-xl sm:text-2xl text-[#F17141]" />
+            <span className="text-lg sm:text-xl font-bold text-[#F17141]">Roomiez</span>
           </div>
-          <p className="text-gray-600">
+          <p className="text-sm sm:text-base text-gray-600">
             Making roommates not hate each other, since 2025.
           </p>
         </div>

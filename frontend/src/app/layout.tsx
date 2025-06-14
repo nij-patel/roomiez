@@ -9,16 +9,46 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Roomiez",
-  description: "Roommate Relationship App",
+  title: "Roomiez - Simplify Your Roommate Experience",
+  description: "Helping roommates not hate each other. Manage expenses, chores, groceries, and shared spaces with your roommates.",
+  keywords: ["roommate", "house management", "expense tracking", "chore management", "shared living"],
+  authors: [{ name: "Nij Patel" }],
+  creator: "Nij Patel",
+  publisher: "Nij Patel",
+  metadataBase: new URL('https://roomiez.app'),
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: 'https://roomiez.app',
+    title: 'Roomiez - Simplify Your Roommate Experience',
+    description: 'Helping roommates not hate each other. Manage expenses, chores, groceries, and shared spaces with your roommates.',
+    siteName: 'Roomiez',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'Roomiez - Roommate Management App',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Roomiez - Simplify Your Roommate Experience',
+    description: 'Manage expenses, chores, groceries, and shared spaces with your roommates.',
+    images: ['/og-image.png'],
+  },
   icons: {
     icon: [
       { url: '/favicon.svg', type: 'image/svg+xml' },
       { url: '/favicon.ico', sizes: '32x32', type: 'image/x-icon' },
     ],
     shortcut: '/favicon.svg',
-    apple: '/favicon.svg',
+    apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
   },
+  manifest: '/site.webmanifest',
 };
 
 interface RootLayoutProps {
