@@ -150,7 +150,7 @@ export default function NudgePage() {
           </h2>
           <p className="text-gray-600 leading-relaxed">
             Click on a roommate below to send them an anonymous email reminder about pending chores. 
-            They'll never know it was you - just a friendly nudge to get things done!
+            They&apos;ll never know it was you - just a friendly nudge to get things done!
           </p>
         </div>
 

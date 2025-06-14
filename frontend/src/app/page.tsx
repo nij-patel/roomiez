@@ -12,11 +12,11 @@ import {
   faArrowRight
 } from "@fortawesome/free-solid-svg-icons";
 import PixelArtHouse from "../components/PixelArtHouse";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 
 export default function LandingPage() {
   // Typing animation state
-  const words = ["chores", "shared spaces", "groceries", "expenses", "roommate life"];
+  const words = useMemo(() => ["chores", "shared spaces", "groceries", "expenses", "roommate life"], []);
   const [currentWord, setCurrentWord] = useState("");
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -108,7 +108,7 @@ export default function LandingPage() {
               <span className="text-[#F17141] inline-block animate-bounce-in drop-shadow-lg"> Roommate Experience</span>
             </h2>
             <p className="text-xl md:text-2xl text-gray-600 mb-8 leading-relaxed drop-shadow-md">
-              manage your house's{" "}
+              manage your house&apos;s{" "}
               <span className="typing-container">
                 <span className="typing-text drop-shadow-md">{currentWord}</span>
                 <span className="typing-cursor">&nbsp;</span>
