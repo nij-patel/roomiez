@@ -1,36 +1,83 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Roomiez
 
-## Getting Started
+**Available at: [roomiez.app](https://roomiez.app)**
 
-First, run the development server:
+Roomiez is a web application designed to simplify the roommate experience through intuitive digital tools for house management. Developed for TartanHacks 2025, where it won the Best Non-AI Prize. Made some changes to clean up the backend, frontend, and now available for use at the link above! (for free!)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## About
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Made initially by 4 college roommates and best friends that kinda sucked at being roommates. Added a bunch of features that we thought would be super useful for us. We all graduated college so we aren't roommates anymore, but hopefully someone else can find some use for this!
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## Features
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### House Management
 
-## Learn More
+- Create or join houses using unique join codes
+- Dashboard overview showing balances, pending chores, and house members
+- Persistent data sharing across all house members
 
-To learn more about Next.js, take a look at the following resources:
+### Expense Tracking
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Log shared expenses between roommates
+- Automatic balance calculations
+- Track who owes what to whom
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Chore Management
 
-## Deploy on Vercel
+- Assign and track household chores
+- Visual dashboard showing pending tasks
+- Individual and shared responsibility tracking
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Shared Grocery List
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Collaborative grocery shopping lists
+- Add, remove, or clear items in real-time
+- Synchronized across all house members
+
+### Anonymous Nudging
+
+- Send anonymous email reminders to roommates
+- Gentle way to address issues without confrontation
+- Completely anonymous - recipients don't know who sent the nudge
+
+### Shared Calendar & Space Reservations
+
+- Schedule group events and activities
+- Reserve shared spaces (living room, kitchen, shower)
+- Color-coded events by space type
+- Prevent scheduling conflicts
+
+## Tech Stack
+
+### Frontend
+
+- **Next.js 15** - React framework with App Router
+- **TypeScript** - Type-safe development
+- **Tailwind CSS** - Utility-first styling
+- **React 19** - Latest React features
+- **Framer Motion** - Animations and transitions
+
+### Backend
+
+- **Node.js** with Express
+- **Firebase Authentication** - User management
+- **Firestore** - Real-time database
+- **Firebase Admin SDK** - Server-side operations
+
+### Deployment
+
+- **Vercel** - Frontend hosting
+- **Railway** - API/backend hosting
+- **Firebase** - Database
+
+## Design Philosophy
+
+Roomiez features a cozy, pixel art-inspired design that creates a welcoming and fun user experience (shoutout the frontend team)
+
+## Awards
+
+Winner of the **Best Non-AI Prize** at TartanHacks 2025.
+
+## License
+
+This project is available for educational and demonstration purposes.
