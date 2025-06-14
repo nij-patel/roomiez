@@ -69,7 +69,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Enable CORS for frontend requests
 const allowedOrigins = process.env.NODE_ENV === 'production' 
-  ? [process.env.FRONTEND_URL || 'https://your-domain.com', 'http://localhost:8000']
+  ? [process.env.FRONTEND_URL || 'https:roomiez.app', 'http://localhost:8000']
   : ['http://localhost:3000', 'http://localhost:8000'];
 
 app.use(cors({
