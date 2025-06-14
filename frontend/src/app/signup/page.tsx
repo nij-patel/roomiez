@@ -1,145 +1,186 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { auth, db } from "@/utils/firebaseConfig";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { setDoc, doc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHouseCircleCheck } from "@fortawesome/free-solid-svg-icons"; // Import the specific icon
+import Link from "next/link";
+import PixelArtHouse from "../../components/PixelArtHouse";
 
 export default function Signup() {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [name, setName] = useState("");
-    const [balance, setBalance] = useState("");
-    const [error, setError] = useState("");
+    const [email, setEmail] = useState<string>("");
+    const [password, setPassword] = useState<string>("");
+    const [firstName, setFirstName] = useState<string>("");
+    const [error, setError] = useState<string>("");
+    const [loading, setLoading] = useState<boolean>(false);
     const router = useRouter();
 
     const handleSignup = async (e: React.FormEvent) => {
         e.preventDefault();
+        setLoading(true);
+        setError("");
+
         try {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
 
             // Store user details in Firestore
             await setDoc(doc(db, "users", user.uid), {
-                firstName: name,
+                firstName: firstName,
                 email: user.email,
+                uid: user.uid,
                 createdAt: new Date().toISOString(),
                 balance: 0
             });
 
-            router.push("/landing"); // Redirect to dashboard
-        } catch (error: any) {
-            setError(error.message);
+            // New users don't have a house yet, so redirect to landing page
+            router.push("/landing");
+        } catch (err: any) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-[#FFECAE]">
-            {/* Animated Form Container */}
-            <motion.div
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
-                className="w-full max-w-md p-10 bg-white shadow-xl rounded-lg"
-            >
-                {/* Headline Animation */}
-                <motion.h1
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2, duration: 0.6 }}
-                    className="text-4xl font-extrabold text-[#F17141] text-center mb-2"
-                >
-                    Create an Account
-                </motion.h1>
-
-                <motion.p
-                    initial={{ opacity: 0, y: -5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3, duration: 0.6 }}
-                    className="text-gray-600 text-center text-lg mb-6"
-                >
-                    Sign up to join us!
-                </motion.p>
-
-                {error && <p className="text-red-500 text-center text-sm mt-3">{error}</p>}
-
-                {/* Animated Form */}
-                <motion.form
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.4, duration: 0.6 }}
-                    onSubmit={handleSignup}
-                    className="space-y-6" 
-                >
-                    <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">First Name</label>
-            <input
-              type="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="first name"
-              required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-[#F17141]"
-            />
-          </div>
-                    {/* Email Input */}
-                    <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-1">Email Address</label>
-                        <input
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            placeholder="email"
-                            required
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-[#F17141]"
-                        />
+        <div className="min-h-screen bg-[#FFECAE] flex items-center justify-center px-4">
+            <div className="flex flex-col lg:flex-row items-center gap-12 w-full max-w-6xl">
+                
+                {/* Pixel Art House Section */}
+                <div className="flex-1 flex flex-col items-center">
+                    <div className="relative">
+                        <div className="animate-float">
+                            <PixelArtHouse />
+                        </div>
+                        
+                        {/* Floating decorative elements */}
+                        <div className="absolute -top-8 -left-8 w-16 h-16 bg-[#F17141]/20 rounded-full opacity-60 animate-float-slow"></div>
+                        <div className="absolute -bottom-4 -right-4 w-12 h-12 bg-[#F17141]/30 rounded-full opacity-40 animate-float-delayed"></div>
                     </div>
-
-                    {/* Password Input */}
-                    <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-1">Password</label>
-                        <input
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            placeholder="password"
-                            required
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-[#F17141]"
-                        />
+                    
+                    <div className="text-center mt-8 space-y-4">
+                        <h1 className="text-5xl font-bold bg-gradient-to-r from-[#F17141] to-[#d95e2f] bg-clip-text text-transparent">
+                            Roomiez
+                        </h1>
+                        <p className="text-xl text-[#F17141] font-medium max-w-md">
+                            Your digital home for seamless roommate living
+                        </p>
                     </div>
+                </div>
 
-                    {/* Sign Up Button with FontAwesome Icon */}
-                    <motion.button
-                        type="submit"
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="w-full py-3 bg-[#F17141] text-white text-lg font-bold rounded-lg shadow-md hover:bg-[#d95e2f] transition-all flex items-center justify-center gap-3"
-                    >
-                        <FontAwesomeIcon icon={faHouseCircleCheck} className="text-xl" />
-                        Sign Up
-                    </motion.button>
-                </motion.form>
+                {/* Signup Form Section */}
+                <div className="flex-1 max-w-lg w-full">
+                    <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-2xl py-10 px-12 border border-[#F17141]/20">
+                        <div className="text-center mb-10">
+                            <h2 className="text-3xl font-bold text-[#F17141] mb-2">Sign Up for a New Account</h2>
+                            <p className="text-gray-600">Create your home away from home</p>
+                        </div>
 
-                {/* Login Link */}
-                <motion.p
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.5, duration: 0.6 }}
-                    className="text-gray-700 text-center mt-6 text-lg"
-                >
-                    Already have an account?{" "}
-                    <button
-                        onClick={() => router.push("/login")}
-                        className="text-[#F17141] font-bold hover:underline"
-                    >
-                        Log In
-                    </button>
-                </motion.p>
-            </motion.div>
+                        {error && (
+                            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                                <p className="text-red-600 text-sm">{error}</p>
+                            </div>
+                        )}
+
+                        <form onSubmit={handleSignup} className="space-y-7">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    First Name
+                                </label>
+                                <input
+                                    type="text"
+                                    value={firstName}
+                                    onChange={(e) => setFirstName(e.target.value)}
+                                    className="w-full px-4 py-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F17141] focus:border-transparent transition-all duration-200 bg-white/90"
+                                    placeholder="Your first name"
+                                    required
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Email Address
+                                </label>
+                                <input
+                                    type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    className="w-full px-4 py-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F17141] focus:border-transparent transition-all duration-200 bg-white/90"
+                                    placeholder="your@email.com"
+                                    required
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Password
+                                </label>
+                                <input
+                                    type="password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    className="w-full px-4 py-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F17141] focus:border-transparent transition-all duration-200 bg-white/90"
+                                    placeholder="••••••••"
+                                    required
+                                />
+                            </div>
+
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="w-full bg-gradient-to-r from-[#F17141] to-[#d95e2f] text-white py-4 px-4 rounded-lg font-medium hover:from-[#d95e2f] hover:to-[#c54e28] focus:outline-none focus:ring-2 focus:ring-[#F17141] focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl text-center"
+                            >
+                                {loading ? 'Creating Account...' : 'Create Your Home'}
+                            </button>
+                        </form>
+
+                        <div className="mt-10 text-center">
+                            <p className="text-sm text-gray-600">
+                                Already have an account?{' '}
+                                <Link href="/login" className="font-medium text-[#F17141] hover:text-[#d95e2f] transition-colors duration-200">
+                                    Sign in here
+                                </Link>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <style jsx>{`
+                @keyframes float {
+                    0%, 100% { transform: translateY(0px); }
+                    50% { transform: translateY(-10px); }
+                }
+                
+                @keyframes float-slow {
+                    0%, 100% { transform: translateY(0px) rotate(0deg); }
+                    50% { transform: translateY(-15px) rotate(180deg); }
+                }
+                
+                @keyframes float-delayed {
+                    0%, 100% { transform: translateY(0px) rotate(0deg); }
+                    50% { transform: translateY(-8px) rotate(-180deg); }
+                }
+                
+                .animate-float {
+                    animation: float 3s ease-in-out infinite;
+                }
+                
+                .animate-float-slow {
+                    animation: float-slow 4s ease-in-out infinite;
+                }
+                
+                .animate-float-delayed {
+                    animation: float-delayed 3.5s ease-in-out infinite 1s;
+                }
+                
+                .pixelated {
+                    image-rendering: pixelated;
+                    image-rendering: -moz-crisp-edges;
+                    image-rendering: crisp-edges;
+                }
+            `}</style>
         </div>
     );
 }

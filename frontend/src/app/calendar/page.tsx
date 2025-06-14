@@ -261,32 +261,32 @@ export default function CalendarPage() {
                 </h3>
 
                 <div className="space-y-4">
-                  <input
-                    type="time"
+              <input
+                type="time"
                     placeholder="Start Time"
-                    value={eventStartTime}
-                    onChange={(e) => setEventStartTime(e.target.value)}
+                value={eventStartTime}
+                onChange={(e) => setEventStartTime(e.target.value)}
                     className="w-full p-3 border border-gray-300 rounded-md"
-                  />
+              />
 
-                  <input
-                    type="time"
+              <input
+                type="time"
                     placeholder="End Time"
-                    value={eventEndTime}
-                    onChange={(e) => setEventEndTime(e.target.value)}
+                value={eventEndTime}
+                onChange={(e) => setEventEndTime(e.target.value)}
                     className="w-full p-3 border border-gray-300 rounded-md"
-                  />
+              />
 
-                  <select
-                    value={reservedSpace}
-                    onChange={(e) => setReservedSpace(e.target.value)}
+              <select
+                value={reservedSpace}
+                onChange={(e) => setReservedSpace(e.target.value)}
                     className="w-full p-3 border border-gray-300 rounded-md"
-                  >
+              >
                     <option value="">Select a location</option>
-                    <option value="Living Room">Living Room</option>
-                    <option value="Kitchen">Kitchen</option>
-                    <option value="Shower">Shower</option>
-                  </select>
+                <option value="Living Room">Living Room</option>
+                <option value="Kitchen">Kitchen</option>
+                <option value="Shower">Shower</option>
+              </select>
 
                   <div className="flex gap-4">
                     <button
@@ -301,7 +301,7 @@ export default function CalendarPage() {
                       className="flex-1 py-3 bg-gray-500 text-white rounded-md hover:bg-gray-600"
                     >
                       Cancel
-                    </button>
+              </button>
                   </div>
                 </div>
               </div>

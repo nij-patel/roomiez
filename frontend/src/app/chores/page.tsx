@@ -180,12 +180,12 @@ export default function ChoreManagementPage() {
               <div key={index} className="p-4 bg-yellow-100 border border-yellow-300 rounded-lg">
                 <div className="flex justify-between items-start mb-2">
                   <p className="text-lg font-semibold text-gray-800">{chore.chore_name}</p>
-                  <button
+                <button
                     onClick={() => chore.chore_id && deleteChore(chore.chore_id)}
                     className="text-red-500 hover:text-red-700"
-                  >
-                    <FontAwesomeIcon icon={faTrash} />
-                  </button>
+                >
+                  <FontAwesomeIcon icon={faTrash} />
+                </button>
                 </div>
                 <p className="text-gray-600 text-sm">
                   Assigned to: <span className="font-bold">

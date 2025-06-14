@@ -20,8 +20,25 @@ export default function Login() {
     setError("");
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      router.push("/dashboard");
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      
+      // Check if user is already in a house
+      const token = await user.getIdToken();
+      const response = await fetch("http://localhost:8000/house/my-house", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        // User has a house, redirect to dashboard
+        router.push("/dashboard");
+      } else {
+        // User doesn't have a house, redirect to landing page
+        router.push("/landing");
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -70,39 +87,39 @@ export default function Login() {
             )}
 
             <form onSubmit={handleLogin} className="space-y-7">
-              <div>
+          <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Email Address
                 </label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
                   className="w-full px-4 py-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F17141] focus:border-transparent transition-all duration-200 bg-white/90"
                   placeholder="your@email.com"
-                  required
-                />
-              </div>
+              required
+            />
+          </div>
 
-              <div>
+          <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Password
                 </label>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
                   className="w-full px-4 py-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F17141] focus:border-transparent transition-all duration-200 bg-white/90"
                   placeholder="••••••••"
-                  required
-                />
-              </div>
+              required
+            />
+          </div>
 
               <button
-                type="submit"
+            type="submit"
                 disabled={loading}
                 className="w-full bg-gradient-to-r from-[#F17141] to-[#d95e2f] text-white py-4 px-4 rounded-lg font-medium hover:from-[#d95e2f] hover:to-[#c54e28] focus:outline-none focus:ring-2 focus:ring-[#F17141] focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl text-center"
-              >
+          >
                 {loading ? 'Signing In...' : 'Enter Your Home'}
               </button>
             </form>

@@ -72,7 +72,7 @@ export default function GroceryListPage() {
   /** Add a new grocery item */
   const addItem = async () => {
     if (!newItem.trim() || !user) return;
-    
+
     setIsAdding(true);
     setError("");
 
@@ -93,7 +93,7 @@ export default function GroceryListPage() {
       const data = await response.json();
       if (response.ok) {
         setMessage(`Added "${newItem}" to grocery list!`);
-        setNewItem("");
+    setNewItem("");
         await fetchGroceries(user); // Refresh the list
       } else {
         setError(data.message || "Failed to add item");
@@ -194,9 +194,9 @@ export default function GroceryListPage() {
               className="w-full h-[600px] object-cover"
             />
           </div>
-        </div>
-      </div>
-
+          </div>
+          </div>
+          
       <Navigation
         title="Roomiez Groceriez"
         onLogout={handleLogout}
@@ -272,12 +272,12 @@ export default function GroceryListPage() {
                           }
                         </p>
                       </div>
-                      <button
+                    <button
                         onClick={() => deleteItem(item.grocery_id, item.item_name)}
                         className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 flex items-center gap-2 transition-colors duration-200"
-                      >
+                    >
                         <FontAwesomeIcon icon={faTrash} /> Remove
-                      </button>
+                    </button>
                     </div>
                   </li>
                 ))}

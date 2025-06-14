@@ -59,6 +59,10 @@ export default function Dashboard() {
       const data = await response.json();
       if (response.ok) {
         setMessage(`House created! Join Code: ${data.data.join_code}`);
+        // Redirect to dashboard after successful house creation
+        setTimeout(() => {
+          router.push("/dashboard");
+        }, 2000); // Give user time to see the success message
       } else {
         setMessage(`Error: ${data.message || data.detail}`);
       }
@@ -91,7 +95,10 @@ export default function Dashboard() {
       const data = await response.json();
       if (response.ok) {
         setMessage("Successfully joined the house!");
-        // router.push("/dashboard"); // Redirect after success
+        // Redirect to dashboard after successful house join
+        setTimeout(() => {
+          router.push("/dashboard");
+        }, 2000); // Give user time to see the success message
       } else {
         setMessage(`Error: ${data.message || data.detail}`);
       }
@@ -183,12 +190,9 @@ export default function Dashboard() {
           </motion.div>
         )}
 
-        {/* House Image Button */}
+        {/* House Image */}
         <motion.div
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.95 }}
-          className="cursor-pointer flex justify-center"
-          onClick={() => router.push("/dashboard")}
+          className="flex justify-center"
         >
           <Image
             src="/house.png"
