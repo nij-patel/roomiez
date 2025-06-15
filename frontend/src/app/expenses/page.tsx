@@ -6,9 +6,10 @@ import { auth } from "@/utils/firebaseConfig";
 import { onAuthStateChanged, User } from "firebase/auth";
 import Image from "next/image";
 import Navigation from "@/components/Navigation";
+import CustomSelect from "@/components/CustomSelect";
 import { Expense, CreateExpenseRequest, SettleExpenseRequest, HouseMember } from "@/types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faDollarSign, faMoneyBillTransfer, faReceipt } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faDollarSign, faMoneyBillTransfer, faReceipt, faUser } from "@fortawesome/free-solid-svg-icons";
 import { buildApiUrl, devLog, devError } from "@/utils/config";
 
 interface HouseBalance {
@@ -47,6 +48,15 @@ export default function ExpensesPage() {
   // Error and success messages
   const [message, setMessage] = useState<string>("");
   const [messageType, setMessageType] = useState<"success" | "error">("success");
+
+  // Create roommate options for the settlement dropdown
+  const roommateOptions = houseBalances
+    .filter(member => member.email !== user?.email)
+    .map(member => ({
+      value: member.email,
+      label: `${member.firstName} (${member.email})`,
+      icon: faUser
+    }));
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
@@ -318,7 +328,7 @@ export default function ExpensesPage() {
         <div className="flex flex-col sm:flex-row gap-4">
           <button
             onClick={() => setShowCreateForm(!showCreateForm)}
-            className="flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-[#F17141] text-white rounded-lg hover:bg-[#E85A2B] transition-colors font-semibold text-sm sm:text-base"
           >
             <FontAwesomeIcon icon={faPlus} />
             Add Expense
@@ -326,7 +336,7 @@ export default function ExpensesPage() {
           
             <button
             onClick={() => setShowSettleForm(!showSettleForm)}
-            className="flex items-center justify-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+            className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold text-sm sm:text-base"
             >
             <FontAwesomeIcon icon={faMoneyBillTransfer} />
             Settle Payment
@@ -341,7 +351,7 @@ export default function ExpensesPage() {
             <form onSubmit={handleCreateExpense} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Amount ($)
                   </label>
                   <input
@@ -353,13 +363,13 @@ export default function ExpensesPage() {
                       ...prev, 
                       amount: parseFloat(e.target.value) || 0 
                     }))}
-                    className="w-full max-w-xs p-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F17141] focus:border-[#F17141] bg-white shadow-sm transition-all duration-200"
+                    className="w-full max-w-xs p-2 sm:p-3 border-2 border-[#F17141] rounded-md bg-[#FFECAE] text-gray-800 font-semibold hover:bg-[#FFE082] focus:bg-white focus:ring-2 focus:ring-[#F17141] transition-colors text-sm sm:text-base"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Description
                   </label>
                   <input
@@ -370,7 +380,7 @@ export default function ExpensesPage() {
                       description: e.target.value 
                     }))}
                     placeholder="e.g., Groceries, Utilities, Dinner"
-                    className="w-full p-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F17141] focus:border-[#F17141] bg-white shadow-sm transition-all duration-200"
+                    className="w-full p-2 sm:p-3 border-2 border-[#F17141] rounded-md bg-[#FFECAE] text-gray-800 font-semibold hover:bg-[#FFE082] focus:bg-white focus:ring-2 focus:ring-[#F17141] transition-colors text-sm sm:text-base"
                     required
                   />
                 </div>
@@ -443,18 +453,18 @@ export default function ExpensesPage() {
                 )}
               </div>
 
-              <div className="flex gap-4">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
                 <button
                   type="submit"
                   disabled={newExpense.split_between.length === 0 || newExpense.amount <= 0}
-                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                  className="px-6 py-2 sm:py-3 bg-[#F17141] text-white rounded-md hover:bg-[#E85A2B] disabled:bg-gray-400 disabled:cursor-not-allowed font-semibold text-sm sm:text-base transition-colors"
                 >
                   Create Expense
                 </button>
             <button
                   type="button"
                   onClick={() => setShowCreateForm(false)}
-                  className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
+                  className="px-6 py-2 sm:py-3 bg-gray-500 text-white rounded-md hover:bg-gray-600 font-semibold text-sm sm:text-base transition-colors"
             >
                   Cancel
             </button>
@@ -471,7 +481,7 @@ export default function ExpensesPage() {
             <form onSubmit={handleSettlePayment} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Amount ($)
                   </label>
                   <input
@@ -483,38 +493,30 @@ export default function ExpensesPage() {
                       ...prev, 
                       amount: parseFloat(e.target.value) || 0 
                     }))}
-                    className="w-full max-w-xs p-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F17141] focus:border-[#F17141] bg-white shadow-sm transition-all duration-200"
+                    className="w-full max-w-xs p-2 sm:p-3 border-2 border-[#F17141] rounded-md bg-[#FFECAE] text-gray-800 font-semibold hover:bg-[#FFE082] focus:bg-white focus:ring-2 focus:ring-[#F17141] transition-colors text-sm sm:text-base"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Pay To
                   </label>
-                  <select
+                  <CustomSelect
+                    options={roommateOptions}
                     value={settlement.to_email}
-                    onChange={(e) => setSettlement(prev => ({ 
+                    onChange={(selectedEmail) => setSettlement(prev => ({ 
                       ...prev, 
-                      to_email: e.target.value 
+                      to_email: selectedEmail 
                     }))}
-                    className="w-full p-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F17141] focus:border-[#F17141] bg-white shadow-sm transition-all duration-200"
-                    required
-                  >
-                    <option value="">Select a roommate</option>
-                    {houseBalances
-                      .filter(member => member.email !== user?.email)
-                      .map((member) => (
-                        <option key={member.email} value={member.email}>
-                          {member.firstName} ({member.email})
-                        </option>
-                      ))}
-                  </select>
+                    placeholder="Select a roommate"
+                    icon={faUser}
+                  />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Note (optional)
                 </label>
                 <input
@@ -525,22 +527,22 @@ export default function ExpensesPage() {
                     description: e.target.value 
                   }))}
                   placeholder="e.g., Paying back for groceries"
-                  className="w-full p-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F17141] focus:border-[#F17141] bg-white shadow-sm transition-all duration-200"
+                  className="w-full p-2 sm:p-3 border-2 border-[#F17141] rounded-md bg-[#FFECAE] text-gray-800 font-semibold hover:bg-[#FFE082] focus:bg-white focus:ring-2 focus:ring-[#F17141] transition-colors text-sm sm:text-base"
                 />
               </div>
 
-              <div className="flex gap-4">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
                 <button
                   type="submit"
                   disabled={settlement.amount <= 0 || !settlement.to_email}
-                  className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                  className="px-6 py-2 sm:py-3 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-semibold text-sm sm:text-base transition-colors"
                 >
                   Send Payment
                 </button>
             <button
                   type="button"
                   onClick={() => setShowSettleForm(false)}
-                  className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
+                  className="px-6 py-2 sm:py-3 bg-gray-500 text-white rounded-md hover:bg-gray-600 font-semibold text-sm sm:text-base transition-colors"
             >
                   Cancel
             </button>

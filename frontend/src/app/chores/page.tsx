@@ -5,8 +5,9 @@ import { useRouter } from "next/navigation";
 import { auth } from "@/utils/firebaseConfig";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrash, faPlusCircle, faHome, faPiggyBank, faHandPointRight, faSprayCanSparkles, faBasketShopping, faCalendarDays } from "@fortawesome/free-solid-svg-icons";
+import { faTrash, faPlusCircle, faHome, faPiggyBank, faHandPointRight, faSprayCanSparkles, faBasketShopping, faCalendarDays, faUser } from "@fortawesome/free-solid-svg-icons";
 import Navigation from "@/components/Navigation";
+import CustomSelect from "@/components/CustomSelect";
 import { Chore, HouseMember } from "@/types";
 import { buildApiUrl, devError } from "@/utils/config";
 
@@ -17,6 +18,13 @@ export default function ChoreManagementPage() {
   const [houseMembers, setHouseMembers] = useState<HouseMember[]>([]);
   const [newChore, setNewChore] = useState<string>("");
   const [selectedRoommate, setSelectedRoommate] = useState<HouseMember | null>(null);
+
+  // Create roommate options for the custom select
+  const roommateOptions = houseMembers.map(member => ({
+    value: member.email,
+    label: `${member.firstName} (${member.email})`,
+    icon: faUser
+  }));
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
@@ -121,48 +129,53 @@ export default function ChoreManagementPage() {
   };
 
   return (
-    <div className="min-h-screen w-screen bg-[#FFECAE] flex flex-col items-center">
+    <div className="min-h-screen w-screen bg-[#FFECAE] flex flex-col">
       <Navigation
         title="Roomiez Chores"
         onLogout={handleLogout}
       />
 
-      <h1 className="text-4xl font-bold text-[#F17141] py-6">Chore Management</h1>
+      <div className="flex flex-col items-center px-4 sm:px-6 lg:px-8">
+        <h1 className="text-4xl font-bold text-[#F17141] py-6">Chore Management</h1>
 
       {/* Add Chore Form */}
-      <div className="w-full max-w-lg bg-white shadow-md rounded-lg p-6 mb-6">
+      <div className="w-full max-w-2xl bg-white shadow-md rounded-lg p-6 mb-6 mx-auto">
         <h2 className="text-2xl font-bold text-[#F17141] mb-4 text-center">Add New Chore</h2>
 
-        <div className="space-y-4">
-          <input
-            type="text"
-            placeholder="Enter chore name"
-            value={newChore}
-            onChange={(e) => setNewChore(e.target.value)}
-            className="w-full p-3 border border-gray-300 rounded-md"
-          />
+        <div className="space-y-4 max-w-md mx-auto">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2 text-left">
+              Chore Name
+            </label>
+            <input
+              type="text"
+              placeholder="Enter chore name"
+              value={newChore}
+              onChange={(e) => setNewChore(e.target.value)}
+              className="w-full p-2 sm:p-3 border-2 border-[#F17141] rounded-md bg-[#FFECAE] text-gray-800 font-semibold hover:bg-[#FFE082] transition-colors text-sm sm:text-base"
+            />
+          </div>
 
-          <select
-            value={selectedRoommate?.email || ""}
-            onChange={(e) => {
-              const selectedEmail = e.target.value;
-              const member = houseMembers.find(m => m.email === selectedEmail) || null;
-              setSelectedRoommate(member);
-            }}
-            className="w-full p-3 border border-gray-300 rounded-md"
-          >
-            <option value="">Select Roommate</option>
-            {houseMembers.map((member, index) => (
-              <option key={index} value={member.email}>
-                {member.firstName} ({member.email})
-              </option>
-            ))}
-          </select>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2 text-left">
+              Assign to Roommate
+            </label>
+            <CustomSelect
+              options={roommateOptions}
+              value={selectedRoommate?.email || ""}
+              onChange={(selectedEmail) => {
+                const member = houseMembers.find(m => m.email === selectedEmail) || null;
+                setSelectedRoommate(member);
+              }}
+              placeholder="Select Roommate"
+              icon={faUser}
+            />
+          </div>
 
           <button
             onClick={addChore}
             disabled={!newChore.trim() || !selectedRoommate}
-            className="w-full py-3 bg-green-500 text-white rounded-md hover:bg-green-600 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full py-2 sm:py-3 bg-[#F17141] text-white rounded-md hover:bg-[#E85A2B] disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-semibold text-sm sm:text-base transition-colors"
           >
             <FontAwesomeIcon icon={faPlusCircle} />
             Add Chore
@@ -198,6 +211,7 @@ export default function ChoreManagementPage() {
         ) : (
           <p className="text-gray-600 text-center">No chores assigned yet.</p>
         )}
+      </div>
       </div>
     </div>
   );

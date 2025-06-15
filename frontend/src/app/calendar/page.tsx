@@ -5,8 +5,10 @@ import { useRouter } from "next/navigation";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faEdit, faTrash, faMapMarkerAlt, faHome, faUtensils, faShower } from "@fortawesome/free-solid-svg-icons";
 import Navigation from "@/components/Navigation";
+import CustomTimePicker from "@/components/CustomTimePicker";
+import CustomSelect from "@/components/CustomSelect";
 import { auth } from "@/utils/firebaseConfig";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { buildApiUrl, devError } from "@/utils/config";
@@ -42,12 +44,27 @@ export default function CalendarPage() {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [editingEvent, setEditingEvent] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [notification, setNotification] = useState<{ type: 'success' | 'error' | 'warning', message: string } | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
 
   // Color coding based on space
   const spaceColors: SpaceColors = {
     "Living Room": "bg-blue-300",
     Kitchen: "bg-green-300",
     Shower: "bg-yellow-300",
+  };
+
+  // Location options for the custom select
+  const locationOptions = [
+    { value: "Living Room", label: "Living Room", icon: faHome },
+    { value: "Kitchen", label: "Kitchen", icon: faUtensils },
+    { value: "Shower", label: "Shower", icon: faShower },
+  ];
+
+  // Show notification function
+  const showNotification = (type: 'success' | 'error' | 'warning', message: string) => {
+    setNotification({ type, message });
+    setTimeout(() => setNotification(null), 5000); // Auto-hide after 5 seconds
   };
 
   // Auth state listener
@@ -81,11 +98,11 @@ export default function CalendarPage() {
         setEvents(data.reservations || []);
       } else {
         devError("Error fetching reservations:", data.message);
-        alert("Failed to load reservations: " + data.message);
+        showNotification('error', "Failed to load reservations: " + data.message);
       }
     } catch (error) {
       devError("Fetch reservations error:", error);
-      alert("Failed to load reservations");
+      showNotification('error', "Failed to load reservations");
     } finally {
       setLoading(false);
     }
@@ -114,15 +131,15 @@ export default function CalendarPage() {
 
       const data = await response.json();
       if (response.ok) {
-        alert("Reservation created successfully!");
+        showNotification('success', "Reservation created successfully!");
         await fetchReservations(user); // Refresh the list
         resetForm();
       } else {
-        alert("Failed to create reservation: " + data.message);
+        showNotification('error', "Failed to create reservation: " + data.message);
       }
     } catch (error) {
       devError("Create reservation error:", error);
-      alert("Failed to create reservation");
+      showNotification('error', "Failed to create reservation");
     } finally {
       setLoading(false);
     }
@@ -131,8 +148,6 @@ export default function CalendarPage() {
   // Function to delete a reservation
   const deleteReservation = async (reservationId: string) => {
     if (!user) return;
-
-    if (!confirm("Are you sure you want to delete this reservation?")) return;
 
     try {
       setLoading(true);
@@ -147,14 +162,15 @@ export default function CalendarPage() {
 
       const data = await response.json();
       if (response.ok) {
-        alert("Reservation deleted successfully!");
+        showNotification('success', "Reservation deleted successfully!");
         await fetchReservations(user); // Refresh the list
+        setShowDeleteConfirm(null); // Close confirmation
       } else {
-        alert("Failed to delete reservation: " + data.message);
+        showNotification('error', "Failed to delete reservation: " + data.message);
       }
     } catch (error) {
       devError("Delete reservation error:", error);
-      alert("Failed to delete reservation");
+      showNotification('error', "Failed to delete reservation");
     } finally {
       setLoading(false);
     }
@@ -163,12 +179,12 @@ export default function CalendarPage() {
   // Function to handle adding/updating an event
   const handleSaveEvent = (): void => {
     if (!eventStartTime || !eventEndTime || !reservedSpace) {
-      alert("Please enter start time, end time, and select a location!");
+      showNotification('warning', "Please enter start time, end time, and select a location!");
       return;
     }
 
     if (eventStartTime >= eventEndTime) {
-      alert("End time must be after start time!");
+      showNotification('warning', "End time must be after start time!");
       return;
     }
 
@@ -187,8 +203,8 @@ export default function CalendarPage() {
 
   // Function to edit an event (for future implementation)
   const handleEditEvent = (reservationId: string): void => {
-    // Note: Backend doesn't have update endpoint yet, so we'll show an alert
-    alert("Edit functionality coming soon! For now, please delete and create a new reservation.");
+    // Note: Backend doesn't have update endpoint yet, so we'll show a notification
+    showNotification('warning', "Edit functionality coming soon! For now, please delete and create a new reservation.");
   };
 
   // Handle calendar date change with proper typing
@@ -232,6 +248,53 @@ export default function CalendarPage() {
         </div>
       )}
 
+      {/* Notification Toast */}
+      {notification && (
+        <div className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm ${
+          notification.type === 'success' ? 'bg-green-500 text-white' :
+          notification.type === 'error' ? 'bg-red-500 text-white' :
+          'bg-yellow-500 text-black'
+        }`}>
+          <div className="flex justify-between items-start">
+            <p className="text-sm sm:text-base">{notification.message}</p>
+            <button
+              onClick={() => setNotification(null)}
+              className="ml-2 text-lg font-bold opacity-70 hover:opacity-100"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white p-4 sm:p-6 rounded-lg shadow-lg w-full max-w-md mx-4">
+            <h3 className="text-lg sm:text-xl font-semibold mb-4">
+              Confirm Delete
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to delete this reservation? This action cannot be undone.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+              <button
+                onClick={() => deleteReservation(showDeleteConfirm)}
+                className="flex-1 py-2 sm:py-3 bg-red-500 text-white rounded-md hover:bg-red-600 text-center text-sm sm:text-base"
+              >
+                Delete
+              </button>
+              <button
+                onClick={() => setShowDeleteConfirm(null)}
+                className="flex-1 py-2 sm:py-3 bg-gray-500 text-white rounded-md hover:bg-gray-600 text-center text-sm sm:text-base"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Main Calendar Section */}
       <div className="flex flex-col lg:flex-row flex-grow">
         <div className="flex flex-col w-full lg:w-2/3 p-4 sm:p-6">
@@ -266,32 +329,40 @@ export default function CalendarPage() {
                 </h3>
 
                 <div className="space-y-4">
-                  <input
-                    type="time"
-                    placeholder="Start Time"
-                    value={eventStartTime}
-                    onChange={(e) => setEventStartTime(e.target.value)}
-                    className="w-full p-2 sm:p-3 border border-gray-300 rounded-md text-sm sm:text-base"
-                  />
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Start Time
+                    </label>
+                    <CustomTimePicker
+                      value={eventStartTime}
+                      onChange={setEventStartTime}
+                      placeholder="Select start time"
+                    />
+                  </div>
 
-                  <input
-                    type="time"
-                    placeholder="End Time"
-                    value={eventEndTime}
-                    onChange={(e) => setEventEndTime(e.target.value)}
-                    className="w-full p-2 sm:p-3 border border-gray-300 rounded-md text-sm sm:text-base"
-                  />
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      End Time
+                    </label>
+                    <CustomTimePicker
+                      value={eventEndTime}
+                      onChange={setEventEndTime}
+                      placeholder="Select end time"
+                    />
+                  </div>
 
-                  <select
-                    value={reservedSpace}
-                    onChange={(e) => setReservedSpace(e.target.value)}
-                    className="w-full p-2 sm:p-3 border border-gray-300 rounded-md text-sm sm:text-base"
-                  >
-                    <option value="">Select a location</option>
-                    <option value="Living Room">Living Room</option>
-                    <option value="Kitchen">Kitchen</option>
-                    <option value="Shower">Shower</option>
-                  </select>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Location
+                    </label>
+                    <CustomSelect
+                      options={locationOptions}
+                      value={reservedSpace}
+                      onChange={setReservedSpace}
+                      placeholder="Select a location"
+                      icon={faMapMarkerAlt}
+                    />
+                  </div>
 
                   <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                     <button
@@ -345,7 +416,7 @@ export default function CalendarPage() {
                       <FontAwesomeIcon icon={faEdit} />
                     </button>
                     <button
-                      onClick={() => deleteReservation(event.reservation_id)}
+                      onClick={() => setShowDeleteConfirm(event.reservation_id)}
                       className="p-1.5 sm:p-2 bg-red-500 text-white rounded hover:bg-red-600 text-sm"
                       disabled={loading || event.person_id !== user?.uid}
                       title={event.person_id !== user?.uid ? "You can only delete your own reservations" : "Delete reservation"}
