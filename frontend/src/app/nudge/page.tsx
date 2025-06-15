@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
+import { useRouter } from "next/navigation";
 import { auth } from "../../utils/firebaseConfig";
 import PixelArtNudge from "../../components/PixelArtNudge";
 import Navigation from "../../components/Navigation";
@@ -21,6 +22,7 @@ export default function NudgePage() {
   const [roommates, setRoommates] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error', message: string } | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchRoommates = async () => {
@@ -99,6 +101,7 @@ export default function NudgePage() {
   const handleLogout = async () => {
     try {
       await auth.signOut();
+      router.push("/login");
     } catch (error) {
       devError("Logout error:", error);
     }
@@ -106,7 +109,7 @@ export default function NudgePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#FFECAE] to-[#FFD882] flex items-center justify-center">
+      <div className="min-h-screen bg-[#FFECAE] flex items-center justify-center">
         <div className="text-xl text-gray-600">Loading...</div>
       </div>
     );
@@ -114,14 +117,14 @@ export default function NudgePage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#FFECAE] to-[#FFD882] flex items-center justify-center">
+      <div className="min-h-screen bg-[#FFECAE] flex items-center justify-center">
         <div className="text-xl text-gray-600">Please log in to access this page.</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#FFECAE] to-[#FFD882]">
+    <div className="min-h-screen bg-[#FFECAE]">
       <Navigation
         title="Roomiez Nudge"
         onLogout={handleLogout}
