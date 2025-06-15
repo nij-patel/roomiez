@@ -1,7 +1,8 @@
 import { Poppins } from "next/font/google";
 import { Metadata } from "next";
 import "./globals.css";
-import { Analytics } from "@vercel/analytics/next"
+import { Analytics } from "@vercel/analytics/next";
+import { FontProvider } from "@/contexts/FontContext";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -9,7 +10,7 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Roomiez - Simplify Your Roommate Experience",
+  title: "Roomiez - simplify your roommate experience",
   description: "Helping roommates not hate each other. Manage expenses, chores, groceries, and shared spaces with your roommates.",
   keywords: ["roommate", "house management", "expense tracking", "chore management", "shared living"],
   authors: [{ name: "Nij Patel" }],
@@ -20,7 +21,7 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: 'https://roomiez.app',
-    title: 'Roomiez - Simplify Your Roommate Experience',
+    title: 'Roomiez - simplify your roommate experience',
     description: 'Helping roommates not hate each other. Manage expenses, chores, groceries, and shared spaces with your roommates.',
     siteName: 'Roomiez',
     images: [
@@ -34,7 +35,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Roomiez - Simplify Your Roommate Experience',
+    title: 'Roomiez - simplify your roommate experience',
     description: 'Manage expenses, chores, groceries, and shared spaces with your roommates.',
     images: ['/og-image.png'],
   },
@@ -58,9 +59,11 @@ interface RootLayoutProps {
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en">
-      <body className={`${poppins.className} bg-[#FFECAE] text-gray-900`}>
-        {children}
-        <Analytics />
+      <body className="bg-[#FFECAE] text-gray-900 font-pixel">
+        <FontProvider>
+          {children}
+          <Analytics />
+        </FontProvider>
       </body>
     </html>
   );

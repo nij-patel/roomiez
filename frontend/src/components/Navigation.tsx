@@ -12,8 +12,10 @@ import {
   faCalendarDays,
   faBars,
   faTimes,
+  faPenFancy,
 } from "@fortawesome/free-solid-svg-icons";
 import { NavItem } from "@/types";
+import { useFont } from "@/contexts/FontContext";
 
 interface NavigationProps {
   title: string;
@@ -63,6 +65,7 @@ const navItems: NavItem[] = [
 export default function Navigation({ title, joinCode, onLogout }: NavigationProps) {
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { isPoppins, toggleFont } = useFont();
 
   const handleLogout = () => {
     if (onLogout) {
@@ -132,6 +135,31 @@ export default function Navigation({ title, joinCode, onLogout }: NavigationProp
           </button>
         </div>
 
+        {/* Font Toggle Switch */}
+        <div className="flex items-center gap-2 ml-2">
+          <span className="hidden lg:inline text-[#FFECAE] text-sm font-medium">Font:</span>
+          <button
+            onClick={toggleFont}
+            className={`relative inline-flex items-center h-8 w-16 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-[#FFECAE] focus:ring-offset-2 focus:ring-offset-[#F17141] ${
+              isPoppins ? 'bg-blue-500' : 'bg-orange-400'
+            }`}
+            title={isPoppins ? "Switch to Pixel Font" : "Switch to Readable Font"}
+          >
+            <span
+              className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform duration-300 shadow-lg ${
+                isPoppins ? 'translate-x-9' : 'translate-x-1'
+              }`}
+            >
+              <FontAwesomeIcon 
+                icon={faPenFancy} 
+                className={`absolute inset-0 h-3 w-3 m-auto transition-colors duration-300 ${
+                  isPoppins ? 'text-blue-500' : 'text-orange-400'
+                }`} 
+              />
+            </span>
+          </button>
+        </div>
+
         {/* Logout Button */}
         <button
           onClick={handleLogout}
@@ -156,6 +184,29 @@ export default function Navigation({ title, joinCode, onLogout }: NavigationProp
                 <span className="text-xs">{item.label}</span>
               </button>
             ))}
+            {/* Font Toggle in Mobile Menu */}
+            <div className="flex flex-col items-center gap-2 px-3 py-3 bg-[#FFECAE] rounded-md">
+              <button
+                onClick={toggleFont}
+                className={`relative inline-flex items-center h-6 w-12 rounded-full transition-colors duration-300 ${
+                  isPoppins ? 'bg-blue-500' : 'bg-orange-400'
+                }`}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300 shadow-sm ${
+                    isPoppins ? 'translate-x-7' : 'translate-x-1'
+                  }`}
+                >
+                  <FontAwesomeIcon 
+                    icon={faPenFancy} 
+                    className={`absolute inset-0 h-2 w-2 m-auto transition-colors duration-300 ${
+                      isPoppins ? 'text-blue-500' : 'text-orange-400'
+                    }`} 
+                  />
+                </span>
+              </button>
+              <span className="text-xs text-[#F17141] font-bold">Font</span>
+            </div>
           </div>
         </div>
       )}

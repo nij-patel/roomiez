@@ -3,10 +3,66 @@
 @tailwind components;
 @tailwind utilities;
 
-
-/* Apply Poppins globally */
-* {
+/* Font classes for toggle functionality */
+.font-pixel {
   font-family: "Public Pixel", sans-serif;
+}
+
+.font-poppins {
+  font-family: "Poppins", sans-serif;
+}
+
+/* Font size scaling for Poppins to compensate for smaller appearance */
+.text-scale-110 {
+  font-size: 110%;
+}
+
+.text-scale-110 h1 {
+  font-size: 110%;
+}
+
+.text-scale-110 h2 {
+  font-size: 110%;
+}
+
+.text-scale-110 h3 {
+  font-size: 110%;
+}
+
+.text-scale-110 h4 {
+  font-size: 110%;
+}
+
+.text-scale-110 h5 {
+  font-size: 110%;
+}
+
+.text-scale-110 h6 {
+  font-size: 110%;
+}
+
+.text-scale-110 p {
+  font-size: 110%;
+}
+
+.text-scale-110 span {
+  font-size: 110%;
+}
+
+.text-scale-110 button {
+  font-size: 110%;
+}
+
+.text-scale-110 input {
+  font-size: 110%;
+}
+
+.text-scale-110 label {
+  font-size: 110%;
+}
+
+/* Remove global font setting, will be applied via context */
+* {
   box-sizing: border-box;
 }
 
