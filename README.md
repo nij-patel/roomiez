@@ -2,11 +2,7 @@
 
 **Available at: [roomiez.app](https://roomiez.app)**
 
-Roomiez is a web application designed to simplify the roommate experience through intuitive digital tools for house management. Developed for TartanHacks 2025, where it won the Best Non-AI Prize. Made some changes to clean up the backend, frontend, and now available for use at the link above! (for free!)
-
-## About
-
-Made initially by 4 college roommates and best friends that kinda sucked at being roommates. Added a bunch of features that we thought would be super useful for us. We all graduated college so we aren't roommates anymore, but hopefully someone else can find some use for this!
+Roomiez is a web application designed to simplify the roommate experience through various features that my roommates and I wished we had in college. Originally developed during TartanHacks 2025, where it won the Best Non-AI Prize. Made some changes to clean up the code + polish the features (it was pretty messy) and is now available for use at the link above! (for free!)
 
 ## Features
 
@@ -51,11 +47,11 @@ Made initially by 4 college roommates and best friends that kinda sucked at bein
 
 ### Frontend
 
-- **Next.js 15** - React framework with App Router
-- **TypeScript** - Type-safe development
-- **Tailwind CSS** - Utility-first styling
-- **React 19** - Latest React features
-- **Framer Motion** - Animations and transitions
+- **Next.js 15** - 
+- **TypeScript** - 
+- **Tailwind CSS** - 
+- **React 19** -
+- **Framer Motion** - 
 
 ### Backend
 
@@ -68,7 +64,7 @@ Made initially by 4 college roommates and best friends that kinda sucked at bein
 
 - **Vercel** - Frontend hosting
 - **Railway** - API/backend hosting
-- **Firebase** - Database
+- **Firebase** - Database + auth
 
 ## Design Philosophy
 
