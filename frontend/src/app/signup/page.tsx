@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { auth, db } from "@/utils/firebaseConfig";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { setDoc, doc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import PixelArtHouse from "../../components/PixelArtHouse";
+import { useFont } from "@/contexts/FontContext";
 
 export default function Signup() {
     const [email, setEmail] = useState<string>("");
@@ -15,6 +16,12 @@ export default function Signup() {
     const [error, setError] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(false);
     const router = useRouter();
+    const { resetFont } = useFont();
+
+    useEffect(() => {
+        // Reset font to pixel when signup page loads
+        resetFont();
+    }, [resetFont]);
 
     const handleSignup = async (e: React.FormEvent) => {
         e.preventDefault();

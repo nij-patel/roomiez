@@ -5,6 +5,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 type FontContextType = {
   isPoppins: boolean;
   toggleFont: () => void;
+  resetFont: () => void;
 };
 
 const FontContext = createContext<FontContextType | undefined>(undefined);
@@ -13,8 +14,8 @@ export function FontProvider({ children }: { children: React.ReactNode }) {
   const [isPoppins, setIsPoppins] = useState(false);
 
   useEffect(() => {
-    // Load saved preference from localStorage
-    const savedFont = localStorage.getItem('preferredFont');
+    // Load saved preference from sessionStorage (persists during session only)
+    const savedFont = sessionStorage.getItem('preferredFont');
     if (savedFont) {
       setIsPoppins(savedFont === 'poppins');
     }
@@ -32,11 +33,16 @@ export function FontProvider({ children }: { children: React.ReactNode }) {
   const toggleFont = () => {
     const newFont = !isPoppins;
     setIsPoppins(newFont);
-    localStorage.setItem('preferredFont', newFont ? 'poppins' : 'pixel');
+    sessionStorage.setItem('preferredFont', newFont ? 'poppins' : 'pixel');
+  };
+
+  const resetFont = () => {
+    setIsPoppins(false);
+    sessionStorage.removeItem('preferredFont');
   };
 
   return (
-    <FontContext.Provider value={{ isPoppins, toggleFont }}>
+    <FontContext.Provider value={{ isPoppins, toggleFont, resetFont }}>
       {children}
     </FontContext.Provider>
   );

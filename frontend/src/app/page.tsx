@@ -13,14 +13,23 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import PixelArtHouse from "../components/PixelArtHouse";
 import { useState, useEffect, useMemo } from "react";
+import { useFont } from "@/contexts/FontContext";
 
 export default function LandingPage() {
+  // Font reset functionality
+  const { resetFont } = useFont();
+
   // Typing animation state
   const words = useMemo(() => ["chores", "shared spaces", "groceries", "expenses", "roommate life"], []);
   const [currentWord, setCurrentWord] = useState("");
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
   const [charIndex, setCharIndex] = useState(0);
+
+  // Reset font to pixel when main page loads
+  useEffect(() => {
+    resetFont();
+  }, [resetFont]);
 
   useEffect(() => {
     const targetWord = words[currentWordIndex];

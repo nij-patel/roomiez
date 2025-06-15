@@ -61,7 +61,6 @@
   font-size: 110%;
 }
 
-/* Remove global font setting, will be applied via context */
 * {
   box-sizing: border-box;
 }
@@ -69,41 +68,33 @@
 html,
 body {
   background-color: #FFECAE;
-  /* Sets the correct background */
   color: #333;
-  /* Ensures readability */
   margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* Centers content */
   justify-content: center;
   min-height: 100vh;
 }
 
-/* Remove global styling that might override Tailwind */
 button,
 input {
   all: unset;
-  /* Prevents default browser styles */
 }
 
-/* Ensure buttons still get default Tailwind styling */
 button {
   cursor: pointer;
 }
 
 .no-box-outline {
-  -webkit-mask-image: url('/house.png'); /* Uses the image transparency as a shape */
+  -webkit-mask-image: url('/house.png');
   mask-image: url('/house.png');
   -webkit-mask-size: contain;
   mask-size: contain;
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
 }
-
-/* Custom animation for the orange text - continuous hover */
 @keyframes gentle-float {
   0%, 100% {
     transform: translateY(0px);
@@ -130,7 +121,6 @@ button {
   opacity: 0;
 }
 
-/* Typing animation styles */
 .typing-container {
   position: relative;
   display: inline-block;
@@ -168,7 +158,6 @@ button {
   }
 }
 
-/* Mobile-friendly calendar styles */
 @media (max-width: 640px) {
   .calendar-mobile .react-calendar {
     width: 100% !important;
