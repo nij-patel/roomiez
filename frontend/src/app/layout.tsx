@@ -61,7 +61,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
     <html lang="en">
       <body className="bg-[#FFECAE] text-gray-900 font-pixel">
         <FontProvider>
-          {children}
+        {children}
           <Analytics />
         </FontProvider>
       </body>

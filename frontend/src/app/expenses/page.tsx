@@ -191,7 +191,7 @@ export default function ExpensesPage() {
       devError("Error settling payment:", error);
       setMessage("Error settling payment");
       setMessageType("error");
-    }
+        }
   };
 
   const handleLogout = async () => {
@@ -247,21 +247,21 @@ export default function ExpensesPage() {
         <div className="flex justify-between items-end h-[80vh]">
           <div className="min-w-[6rem] md:min-w-[8rem] -ml-32 md:-ml-48 h-full flex items-end">
             <Image
-              src="/column.png"
-              alt="Left Column"
+            src="/column.png"
+            alt="Left Column"
               width={128}
               height={600}
               className="w-full h-[600px] object-cover"
-            />
-          </div>
+          />
+        </div>
           <div className="min-w-[6rem] md:min-w-[8rem] -mr-32 md:-mr-48 h-full flex items-end">
             <Image
-              src="/column.png"
-              alt="Right Column"
+            src="/column.png"
+            alt="Right Column"
               width={128}
               height={600}
               className="w-full h-[600px] object-cover"
-            />
+          />
           </div>
         </div>
       </div>
@@ -435,7 +435,7 @@ export default function ExpensesPage() {
                             : "text-gray-700"
                         }`}>
                           {member.firstName} {member.lastName}
-                        </span>
+            </span>
                         <p className="text-xs text-gray-500">{member.email}</p>
                       </div>
                     </label>
@@ -451,7 +451,7 @@ export default function ExpensesPage() {
                     </p>
                   </div>
                 )}
-              </div>
+          </div>
 
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
                 <button

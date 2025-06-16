@@ -12,6 +12,7 @@ import CustomSelect from "@/components/CustomSelect";
 import { auth } from "@/utils/firebaseConfig";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { buildApiUrl, devError } from "@/utils/config";
+import CustomDatePicker from "@/components/CustomDatePicker";
 
 // Type for calendar events (matching backend Reservation type)
 interface CalendarEvent {
@@ -302,10 +303,10 @@ export default function CalendarPage() {
 
           {/* React Calendar Component */}
           <div className="bg-white p-3 sm:p-6 rounded-lg shadow-md w-full">
-            <Calendar 
-              onChange={handleDateChange} 
-              value={date} 
-              className="w-full calendar-mobile" 
+            <CustomDatePicker
+              selected={date}
+              onChange={(newDate) => newDate && setDate(newDate)}
+              className="w-full"
             />
           </div>
 

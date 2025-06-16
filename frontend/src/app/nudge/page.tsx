@@ -35,13 +35,13 @@ export default function NudgePage() {
           headers: { 
             Authorization: `Bearer ${token}` 
           },
-        });
+      });
 
         if (!response.ok) {
           throw new Error(`Failed to fetch house data: ${response.status}`);
         }
 
-        const data = await response.json();
+      const data = await response.json();
         devLog("House API response:", data);
         
         if (data.data && data.data.member_details) {
@@ -57,30 +57,30 @@ export default function NudgePage() {
           
           devLog("Found roommates:", roommates);
           setRoommates(roommates);
-        } else {
+      } else {
           devLog("No member details in response");
-        }
-      } catch (error) {
-        devError("Error fetching roommates:", error);
       }
-    };
+    } catch (error) {
+        devError("Error fetching roommates:", error);
+    }
+  };
 
     fetchRoommates();
   }, [user]);
 
-  const handleNudgeRoommate = async (roommateId: string, roommateName: string) => {
+  const handleNudgeRoommate = async (roommateEmail: string, roommateName: string) => {
     setIsLoading(true);
     setFeedback(null);
 
     try {
-      const response = await fetch("/api/nudge", {
+      const response = await fetch(buildApiUrl("/nudge/send"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${await user?.getIdToken()}`
         },
         body: JSON.stringify({
-          recipientId: roommateId
+          recipient_email: roommateEmail
         })
       });
 
@@ -107,6 +107,14 @@ export default function NudgePage() {
     }
   };
 
+  // Notification auto-hide effect
+  useEffect(() => {
+    if (feedback) {
+      const timer = setTimeout(() => setFeedback(null), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [feedback]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#FFECAE] flex items-center justify-center">
@@ -125,6 +133,22 @@ export default function NudgePage() {
 
   return (
     <div className="min-h-screen bg-[#FFECAE]">
+      {/* Notification Toast */}
+      {feedback && (
+        <div className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm transition-all duration-300
+          ${feedback.type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}
+        >
+          <div className="flex justify-between items-start">
+            <p className="text-sm sm:text-base">{feedback.message}</p>
+            <button
+              onClick={() => setFeedback(null)}
+              className="ml-2 text-lg font-bold opacity-70 hover:opacity-100"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
       <Navigation
         title="Roomiez Nudge"
         onLogout={handleLogout}
@@ -157,17 +181,6 @@ export default function NudgePage() {
           </p>
         </div>
 
-        {/* Feedback Message */}
-        {feedback && (
-          <div className={`p-4 rounded-lg ${
-            feedback.type === 'success' 
-              ? 'bg-green-100 text-green-700 border border-green-300' 
-              : 'bg-red-100 text-red-700 border border-red-300'
-          }`}>
-            {feedback.message}
-          </div>
-        )}
-
         {/* Roommate Selection */}
         <div className="bg-white rounded-xl shadow-lg p-8">
           <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
@@ -177,26 +190,26 @@ export default function NudgePage() {
           {roommates.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {roommates.map((roommate) => (
-                <div
+            <div
                   key={roommate.email}
-                  onClick={() => handleNudgeRoommate(roommate.id, `${roommate.firstName} ${roommate.lastName}`)}
+                  onClick={() => handleNudgeRoommate(roommate.email, `${roommate.firstName}`)}
                   className={`bg-white p-6 rounded-xl shadow-lg flex flex-col items-center hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer border-2 border-transparent hover:border-[#F17141] group ${
                     isLoading ? 'pointer-events-none opacity-50' : ''
                   }`}
-                >
+            >
                   <div className="relative">
-                    <FontAwesomeIcon
-                      icon={faUserCircle}
-                      size="4x"
+                <FontAwesomeIcon
+                  icon={faUserCircle}
+                  size="4x"
                       className="text-gray-400 group-hover:text-[#F17141] transition-colors duration-300"
-                    />
+                />
                     <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <FontAwesomeIcon
+                <FontAwesomeIcon
                         icon={faHandPointRight}
-                        size="2x"
+                  size="2x"
                         className="text-[#F17141] animate-pulse"
-                      />
-                    </div>
+                />
+              </div>
                   </div>
                   <p className="text-lg font-semibold mt-4 text-gray-800">
                     {roommate.firstName} {roommate.lastName}

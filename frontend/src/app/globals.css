@@ -12,33 +12,59 @@
   font-family: "Poppins", sans-serif;
 }
 
-/* Font size scaling for Poppins to compensate for smaller appearance */
+/* Enhanced font size scaling for Poppins to match pixel font visual size */
 .text-scale-110 {
   font-size: 110%;
 }
 
+/* Specific scaling for Tailwind text size classes when Poppins is active */
+.font-poppins .text-5xl {
+  font-size: 4.5rem; /* Increased from default 3rem */
+}
+
+.font-poppins .text-4xl {
+  font-size: 3.5rem; /* Increased from default 2.25rem */
+}
+
+.font-poppins .text-3xl {
+  font-size: 2.5rem; /* Increased from default 1.875rem */
+}
+
+.font-poppins .text-2xl {
+  font-size: 2rem; /* Increased from default 1.5rem */
+}
+
+.font-poppins .text-xl {
+  font-size: 1.5rem; /* Increased from default 1.25rem */
+}
+
+.font-poppins .text-lg {
+  font-size: 1.25rem; /* Increased from default 1.125rem */
+}
+
+/* Scale up headings when Poppins is active */
 .text-scale-110 h1 {
-  font-size: 110%;
+  font-size: 140%;
 }
 
 .text-scale-110 h2 {
-  font-size: 110%;
+  font-size: 130%;
 }
 
 .text-scale-110 h3 {
-  font-size: 110%;
+  font-size: 125%;
 }
 
 .text-scale-110 h4 {
-  font-size: 110%;
+  font-size: 120%;
 }
 
 .text-scale-110 h5 {
-  font-size: 110%;
+  font-size: 115%;
 }
 
 .text-scale-110 h6 {
-  font-size: 110%;
+  font-size: 115%;
 }
 
 .text-scale-110 p {
@@ -180,5 +206,26 @@ button {
   
   .calendar-mobile .react-calendar__navigation__label {
     font-size: 0.875rem !important;
+  }
+
+  /* Mobile scaling adjustments for Poppins */
+  .font-poppins .text-5xl {
+    font-size: 3.5rem;
+  }
+
+  .font-poppins .text-4xl {
+    font-size: 2.75rem;
+  }
+
+  .font-poppins .text-3xl {
+    font-size: 2rem;
+  }
+
+  .font-poppins .text-2xl {
+    font-size: 1.75rem;
+  }
+
+  .font-poppins .text-xl {
+    font-size: 1.35rem;
   }
 }
